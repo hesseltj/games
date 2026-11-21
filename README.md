@@ -1,1 +1,38 @@
-# games
+# Brainy Town (working title)
+
+Learning games for kids, Pre-K through 5th grade, in one installable app for tablets and phones.
+Kids play short games in five subjects, earn a different currency for each, and (soon) spend it
+in a shop to dress up their character and decorate their house.
+
+- 📋 [Project plan](docs/PLAN.md)
+- 🎨 [Game design doc](docs/DESIGN.md)
+- 🚀 [Hosting & installing on tablets](docs/HOSTING.md)
+
+## Status
+
+**Phase 1 (foundation):** done.
+- Installable offline web app (PWA)
+- Kid profiles: name, grade, favorite theme, custom character
+- Hub with house, character, wallets and subject buttons
+- Shared game framework: adaptive difficulty, spoken prompts, hints, payouts, reward screen
+- **Number Pop** math game with 23 skills from Pre-K through 3rd grade
+
+## Development
+
+```bash
+npm install
+npm run dev        # local dev server (open the printed URL on a tablet on the same Wi-Fi)
+npm test           # unit tests
+npm run build      # production build into dist/
+```
+
+Code layout:
+
+| Path | What's there |
+|---|---|
+| `src/core/` | Pure game logic: skills, adaptive difficulty, economy, subjects, themes, round runner |
+| `src/data/` | On-device storage (IndexedDB) and app state |
+| `src/audio/` | Text-to-speech and synthesized sound effects |
+| `src/games/` | Mini-games. Each one plugs into `useRound` |
+| `src/screens/` | Profiles, new player, hub, subject menu, reward |
+| `src/ui/` | Avatar, house, shapes, confetti, wallet |

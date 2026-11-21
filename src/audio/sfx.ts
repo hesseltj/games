@@ -1,0 +1,36 @@
+// Small synthesized sound effects, so the app needs no audio files and works offline.
+let ctx: AudioContext | null = null;
+
+export function unlockAudio() {
+  if (!ctx) {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+}
+
+function tone(freq: number, start: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, slideTo?: number) {
+  if (!ctx) return;
+  const t0 = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
+export const sfx = {
+  tap: () => tone(660, 0, 0.06, 'triangle', 0.08),
+  pop: () => { tone(500, 0, 0.12, 'sine', 0.25, 1400); },
+  correct: () => { tone(784, 0.05, 0.12, 'triangle'); tone(1047, 0.15, 0.2, 'triangle'); },
+  boop: () => tone(300, 0, 0.18, 'sine', 0.12, 220),
+  coin: () => [0, 0.08, 0.16, 0.24, 0.32].forEach((t, i) => tone(988 + i * 120, t, 0.1, 'square', 0.05)),
+  fanfare: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, i === 3 ? 0.45 : 0.14, 'triangle', 0.15)),
+};
