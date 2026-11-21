@@ -43,11 +43,11 @@ Family Link settings.
 2. Tap the **Share** button → **"Add to Home Screen"** → **Add**.
 3. Make sure the phone isn't on silent if you want to hear the voice prompts.
 
-## Important for now: progress is stored on each device
+## Cloud backup
 
-Until cloud sync is added (Phase 2), each kid's coins and progress live **only on that tablet**.
-Don't use "Clear data" for Chrome or uninstall the app, or that progress resets. Phase 2 adds the
-family login so progress is backed up and follows them to new devices.
+Without cloud backup, each kid's progress lives only on their tablet. Follow
+[CLOUD_SETUP.md](CLOUD_SETUP.md) to turn it on, so progress is backed up and follows them to new
+devices.
 
 ## Alternative: Cloudflare Pages
 

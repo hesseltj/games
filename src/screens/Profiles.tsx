@@ -4,7 +4,7 @@ import { THEME_BY_ID } from '../core/themes';
 import { GRADE_LABEL } from '../core/types';
 import { sfx, unlockAudio } from '../audio/sfx';
 
-export function Profiles({ onPick, onAdd }: { onPick: (id: string) => void; onAdd: () => void }) {
+export function Profiles({ onPick, onAdd, onParents }: { onPick: (id: string) => void; onAdd: () => void; onParents: () => void }) {
   const kids = useStore((s) => s.kids);
   return (
     <div className="screen profiles">
@@ -23,6 +23,7 @@ export function Profiles({ onPick, onAdd }: { onPick: (id: string) => void; onAd
           <span className="profile-name">Add player</span>
         </button>
       </div>
+      <button className="grownups-btn" onClick={() => { sfx.tap(); onParents(); }}>⚙️ Grown-ups</button>
     </div>
   );
 }

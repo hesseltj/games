@@ -9,7 +9,7 @@ import { sfx } from '../audio/sfx';
 
 type Step = 'name' | 'grade' | 'theme' | 'look';
 
-export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onCancel: () => void }) {
+export function NewKid({ onDone, onCancel, onParents }: { onDone: (id: string) => void; onCancel: () => void; onParents: () => void }) {
   const [step, setStep] = useState<Step>('name');
   const [name, setName] = useState('');
   const [grade, setGrade] = useState<Grade>('K');
@@ -38,6 +38,7 @@ export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onC
           <input className="name-input" value={name} maxLength={14} autoFocus placeholder="Type a name"
             onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && name.trim() && setStep('grade')} />
           <button className="big-btn" disabled={!name.trim()} onClick={() => { tap(); setStep('grade'); }}>Next →</button>
+          <button className="grownups-btn inline" onClick={() => { tap(); onParents(); }}>⚙️ Grown-ups: restore players from cloud backup</button>
         </div>
       )}
 

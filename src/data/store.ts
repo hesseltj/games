@@ -50,7 +50,20 @@ export function setLocalChangeHandler(fn: () => void) {
   onLocalChange = fn;
 }
 
-export async function loadAll() {
+let loading: Promise<void> | null = null;
+/** Load everything from the device once; later calls share the same load. */
+export function loadAll(): Promise<void> {
+  loading ??= doLoad();
+  return loading;
+}
+
+/** Tests only. */
+export function reloadAll(): Promise<void> {
+  loading = doLoad();
+  return loading;
+}
+
+async function doLoad() {
   const d = await db();
   const [kids, ledger, skillRows, rounds, inventory, rooms] = await Promise.all([
     d.getAll('kids'), d.getAll('ledger'), d.getAll('skills'), d.getAll('rounds'), d.getAll('inventory'), d.getAll('rooms'),
