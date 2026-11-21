@@ -24,7 +24,47 @@ export interface Kid {
   gradeBySubject: Partial<Record<Subject, Grade>>;
   favoriteTheme: ThemeId;
   avatar: AvatarConfig;
+  equipped?: Equipped;
+  /** Shop item the kid is saving up for (shown on the hub). */
+  goalItemId?: string | null;
+  starterGranted?: boolean;
   createdAt: number;
+  updatedAt: number;
+}
+
+export interface Equipped {
+  hat?: string | null;
+  outfit?: string | null;
+  /** Inventory item id of the pet that follows the kid around. */
+  buddy?: string | null;
+}
+
+export interface InventoryItem {
+  id: string;
+  kidId: string;
+  /** Catalog item id or backdrop id. */
+  itemId: string;
+  source: 'shop' | 'starter' | 'gift';
+  acquiredAt: number;
+  updatedAt: number;
+}
+
+export interface Placement {
+  /** Inventory id of the placed item. */
+  inv: string;
+  /** Position in % of the room box (x = center, y = bottom edge). */
+  x: number;
+  y: number;
+  flip?: boolean;
+}
+
+export interface Room {
+  id: string; // `${kidId}:${type}`
+  kidId: string;
+  type: string;
+  wallpaper: string;
+  floor: string;
+  placements: Placement[];
   updatedAt: number;
 }
 

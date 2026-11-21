@@ -8,11 +8,17 @@ import { Hub } from './screens/Hub';
 import { SubjectMenu } from './screens/SubjectMenu';
 import { Reward } from './screens/Reward';
 import { NumberPop } from './games/numberPop/NumberPop';
+import { Shop } from './screens/Shop';
+import { House } from './screens/House';
+import { Wardrobe } from './screens/Wardrobe';
 
 type Screen =
   | { name: 'profiles' }
   | { name: 'newKid' }
   | { name: 'hub' }
+  | { name: 'shop' }
+  | { name: 'house' }
+  | { name: 'wardrobe' }
   | { name: 'subject'; subject: Subject }
   | { name: 'play'; subject: Subject; gameId: string; key: number }
   | { name: 'reward'; subject: Subject; gameId: string; summary: RoundSummary };
@@ -56,7 +62,14 @@ export function App() {
 
   switch (screen.name) {
     case 'hub':
-      return <Hub kid={kid} onSubject={(subject) => setScreen({ name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })} />;
+      return <Hub kid={kid} onSubject={(subject) => setScreen({ name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })}
+        onGo={(t) => setScreen({ name: t } as Screen)} />;
+    case 'shop':
+      return <Shop kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
+    case 'house':
+      return <House kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
+    case 'wardrobe':
+      return <Wardrobe kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
     case 'subject':
       return <SubjectMenu subject={screen.subject} onBack={() => setScreen({ name: 'hub' })}
         onPlay={(gameId) => setScreen({ name: 'play', subject: screen.subject, gameId, key: Date.now() })} />;

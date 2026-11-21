@@ -1,6 +1,15 @@
 import { useSyncExternalStore } from 'react';
 import { db } from './db';
-import type { Kid, LedgerEntry, RoundLog, SkillProgress } from '../core/types';
+import { COLLECTIONS, recordId, type CollectionName, type CollectionTypes } from './collections';
+import type { InventoryItem, Kid, LedgerEntry, Room, RoundLog, SkillProgress } from '../core/types';
+
+export interface SyncStatus {
+  configured: boolean;
+  email: string | null;
+  state: 'off' | 'idle' | 'syncing' | 'error' | 'offline';
+  lastSyncedAt: number | null;
+  error?: string;
+}
 
 export interface AppState {
   loaded: boolean;
@@ -8,12 +17,18 @@ export interface AppState {
   ledger: LedgerEntry[];
   skills: Record<string, Record<string, SkillProgress>>; // kidId → skillId → progress
   rounds: RoundLog[];
+  inventory: InventoryItem[];
+  rooms: Room[];
+  sync: SyncStatus;
 }
 
-let state: AppState = { loaded: false, kids: [], ledger: [], skills: {}, rounds: [] };
+let state: AppState = {
+  loaded: false, kids: [], ledger: [], skills: {}, rounds: [], inventory: [], rooms: [],
+  sync: { configured: false, email: null, state: 'off', lastSyncedAt: null },
+};
 const listeners = new Set<() => void>();
 
-function set(next: Partial<AppState>) {
+export function setState(next: Partial<AppState>) {
   state = { ...state, ...next };
   listeners.forEach((l) => l());
 }
@@ -29,36 +44,84 @@ export function getState() {
   return state;
 }
 
+/** Called after any local change; the sync module plugs in here. */
+let onLocalChange: () => void = () => {};
+export function setLocalChangeHandler(fn: () => void) {
+  onLocalChange = fn;
+}
+
 export async function loadAll() {
   const d = await db();
-  const [kids, ledger, skillRows, rounds] = await Promise.all([
-    d.getAll('kids'), d.getAll('ledger'), d.getAll('skills'), d.getAll('rounds'),
+  const [kids, ledger, skillRows, rounds, inventory, rooms] = await Promise.all([
+    d.getAll('kids'), d.getAll('ledger'), d.getAll('skills'), d.getAll('rounds'), d.getAll('inventory'), d.getAll('rooms'),
   ]);
   const skills: AppState['skills'] = {};
   for (const r of skillRows) (skills[r.kidId] ??= {})[r.skillId] = r;
   kids.sort((a, b) => a.createdAt - b.createdAt);
-  set({ loaded: true, kids, ledger, skills, rounds });
+  setState({ loaded: true, kids, ledger, skills, rounds, inventory, rooms });
 }
 
-export async function saveKid(kid: Kid) {
-  await (await db()).put('kids', kid);
-  const others = state.kids.filter((k) => k.id !== kid.id);
-  set({ kids: [...others, kid].sort((a, b) => a.createdAt - b.createdAt) });
-}
-
-export async function addLedger(entries: LedgerEntry[]) {
+/**
+ * Write records locally. `fromSync` writes (records pulled from the cloud) are not queued for upload.
+ */
+export async function putRecords<C extends CollectionName>(collection: C, values: CollectionTypes[C][], fromSync = false) {
+  if (values.length === 0) return;
   const d = await db();
-  const tx = d.transaction('ledger', 'readwrite');
-  await Promise.all([...entries.map((e) => tx.store.put(e)), tx.done]);
-  set({ ledger: [...state.ledger, ...entries] });
+  const tx = d.transaction([collection, 'outbox'], 'readwrite');
+  const store = tx.objectStore(collection);
+  const outbox = tx.objectStore('outbox');
+  const ops: Promise<unknown>[] = [];
+  for (const v of values) {
+    ops.push(store.put(v as never));
+    if (!fromSync) {
+      const id = recordId(collection, v);
+      ops.push(outbox.put({ key: `${collection}/${id}`, collection, id }));
+    }
+  }
+  await Promise.all([...ops, tx.done]);
+  applyToState(collection, values);
+  if (!fromSync) onLocalChange();
 }
 
-export async function saveSkill(p: SkillProgress) {
-  await (await db()).put('skills', p);
-  set({ skills: { ...state.skills, [p.kidId]: { ...state.skills[p.kidId], [p.skillId]: p } } });
+function upsertBy<T>(list: T[], values: T[], key: (v: T) => string): T[] {
+  const map = new Map(list.map((v) => [key(v), v]));
+  for (const v of values) map.set(key(v), v);
+  return [...map.values()];
 }
 
-export async function addRound(r: RoundLog) {
-  await (await db()).put('rounds', r);
-  set({ rounds: [...state.rounds, r] });
+function applyToState<C extends CollectionName>(collection: C, values: CollectionTypes[C][]) {
+  const s = state;
+  switch (collection) {
+    case 'kids':
+      setState({ kids: upsertBy(s.kids, values as Kid[], (k) => k.id).sort((a, b) => a.createdAt - b.createdAt) });
+      break;
+    case 'ledger':
+      setState({ ledger: upsertBy(s.ledger, values as LedgerEntry[], (e) => e.id) });
+      break;
+    case 'rounds':
+      setState({ rounds: upsertBy(s.rounds, values as RoundLog[], (r) => r.id) });
+      break;
+    case 'inventory':
+      setState({ inventory: upsertBy(s.inventory, values as InventoryItem[], (r) => r.id) });
+      break;
+    case 'rooms':
+      setState({ rooms: upsertBy(s.rooms, values as Room[], (r) => r.id) });
+      break;
+    case 'skills': {
+      const skills = { ...s.skills };
+      for (const p of values as SkillProgress[]) skills[p.kidId] = { ...skills[p.kidId], [p.skillId]: p };
+      setState({ skills });
+      break;
+    }
+  }
 }
+
+// Convenience wrappers used by the app.
+export const saveKid = (kid: Kid) => putRecords('kids', [kid]);
+export const addLedger = (entries: LedgerEntry[]) => putRecords('ledger', entries);
+export const saveSkill = (p: SkillProgress) => putRecords('skills', [p]);
+export const addRound = (r: RoundLog) => putRecords('rounds', [r]);
+export const addInventory = (items: InventoryItem[]) => putRecords('inventory', items);
+export const saveRoom = (room: Room) => putRecords('rooms', [room]);
+
+export { COLLECTIONS };
