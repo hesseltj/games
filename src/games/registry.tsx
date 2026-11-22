@@ -1,28 +1,19 @@
-import { useRef, type ComponentType } from 'react';
-import type { Subject } from '../core/types';
+import { useRef, useState, type ComponentType } from 'react';
 import { THEME_BY_ID } from '../core/themes';
 import { defaultRng } from '../core/random';
-import { ChoiceGame, type GameProps, type Skin } from './shared/ChoiceGame';
-import type { ChoiceGen } from './shared/types';
-import { GENERATORS as NUMBER_POP } from './numberPop/questions';
-import { LETTER_LAGOON } from './reading/letterLagoon';
+import { ChoiceGame, type GameProps } from './shared/ChoiceGame';
+import { CHOICE_GAMES } from './choiceGens';
 import { makeStoryGenerator, STORIES_PER_ROUND, STORY_QUESTIONS_PER_STORY } from './reading/storySpot';
-import { PICTURE_WORDS } from './spelling/pictureWords';
 import { TileGame } from './spelling/TileGame';
-import { SCIENCE_SAFARI, SORT_IT } from './science/scienceGames';
-import { PATTERN_TRAIN } from './logic/patternTrain';
 import { MemoryGame } from './logic/MemoryGame';
 import { RobotGame } from './logic/RobotGame';
+import { SudokuGame } from './logic/SudokuGame';
+import { pickSkill } from '../core/adaptive';
+import { skillsFor } from '../core/skills';
+import { kidGrade } from '../core/useRound';
+import { getState } from '../data/store';
 
-/** Choice-style games: which generators they use and how they look. */
-export const CHOICE_GAMES: Record<string, { subject: Subject; skin: Skin; gens: Record<string, ChoiceGen> }> = {
-  numberPop: { subject: 'math', skin: 'bubbles', gens: NUMBER_POP },
-  letterLagoon: { subject: 'reading', skin: 'fish', gens: LETTER_LAGOON },
-  pictureWords: { subject: 'spelling', skin: 'cards', gens: PICTURE_WORDS },
-  scienceSafari: { subject: 'science', skin: 'cards', gens: SCIENCE_SAFARI },
-  sortIt: { subject: 'science', skin: 'bins', gens: SORT_IT },
-  patternTrain: { subject: 'logic', skin: 'train', gens: PATTERN_TRAIN },
-};
+export { CHOICE_GAMES };
 
 function choiceGame(gameId: string): ComponentType<GameProps> {
   const cfg = CHOICE_GAMES[gameId];
@@ -36,9 +27,11 @@ function choiceGame(gameId: string): ComponentType<GameProps> {
 }
 
 function StorySpot(props: GameProps) {
-  const gen = useRef(makeStoryGenerator(defaultRng));
+  // One grade's stories per round, so a story never switches halfway through.
+  const [skillId] = useState(() => pickSkill(skillsFor('reading', 'storySpot'), kidGrade(props.kid, 'reading'), getState().skills[props.kid.id] ?? {}, defaultRng).id);
+  const gen = useRef(makeStoryGenerator(defaultRng, skillId));
   return <ChoiceGame {...props} subject="reading" gameId="storySpot" skin="story" total={STORIES_PER_ROUND * STORY_QUESTIONS_PER_STORY}
-    generate={(_skill, step) => gen.current(step)} />;
+    fixedSkillId={skillId} generate={(_skill, step) => gen.current(step)} />;
 }
 
 export const GAME_COMPONENTS: Record<string, ComponentType<GameProps>> = {
@@ -48,4 +41,5 @@ export const GAME_COMPONENTS: Record<string, ComponentType<GameProps>> = {
   spellingBee: (p) => <TileGame {...p} subject="spelling" gameId="spellingBee" garden />,
   memoryFlip: MemoryGame,
   robotPath: RobotGame,
+  pictureSudoku: SudokuGame,
 };

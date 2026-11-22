@@ -25,7 +25,7 @@ export function payoutTotal(lines: PayoutLine[]): number {
 export type Wallet = Record<Currency, number>;
 
 export function emptyWallet(): Wallet {
-  return { coins: 0, stars: 0, gems: 0, leaves: 0, pieces: 0 };
+  return { coins: 0, stars: 0, gems: 0, leaves: 0, pieces: 0, shards: 0 };
 }
 
 /** Wallet = sum of ledger entries. Duplicate entry ids (e.g. from sync) are counted once. */

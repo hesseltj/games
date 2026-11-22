@@ -53,6 +53,8 @@ function Hat({ hat }: { hat: NonNullable<Wear['hat']> }) {
       return <g><ellipse {...s} cx="44" cy="2" rx="9" ry="24" fill={hat.color} transform="rotate(-12 44 2)" /><ellipse cx="44" cy="4" rx="4" ry="16" fill={c2} transform="rotate(-12 44 4)" /><ellipse {...s} cx="76" cy="2" rx="9" ry="24" fill={hat.color} transform="rotate(12 76 2)" /><ellipse cx="76" cy="4" rx="4" ry="16" fill={c2} transform="rotate(12 76 4)" /><path d="M30 34 Q60 14 90 34" fill="none" stroke={OUT} strokeWidth="7" strokeLinecap="round" /><path d="M30 34 Q60 14 90 34" fill="none" stroke={hat.color} strokeWidth="3.5" strokeLinecap="round" /></g>;
     case 'helmet':
       return <g><path {...s} fill={hat.color} d="M26 42 Q26 8 60 8 Q94 8 94 42 Z" /><rect {...s} x="16" y="38" width="88" height="10" rx="5" fill={hat.color} /><rect x="54" y="8" width="12" height="32" rx="4" fill="#00000022" /></g>;
+    case 'witch':
+      return <g><ellipse {...s} cx="60" cy="34" rx="46" ry="8" fill={hat.color} /><path {...s} fill={hat.color} d="M38 32 L66 -18 L82 32 Z" /><rect x="40" y="24" width="40" height="7" fill={c2} /></g>;
     case 'bow':
       return <g transform="translate(78 26)"><path {...s} fill={hat.color} d="M0 0 L-16 -10 L-16 10 Z M0 0 L16 -10 L16 10 Z" /><circle {...s} r="5" fill={c2} /></g>;
   }

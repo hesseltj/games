@@ -3,10 +3,14 @@ import { shuffle, type Rng } from '../../core/random';
 export const PAIRS_BY_SKILL: Record<string, number[]> = {
   'l.pk.match': [2, 3, 3],
   'l.k.memory': [4, 5, 6],
+  'l.1.memory': [5, 6, 6],
   'l.2.memory': [6, 7, 8],
+  'l.3.memory': [7, 8, 9],
+  'l.4.memory': [9, 10, 10],
+  'l.5.memory': [10, 11, 12],
 };
 
-const EXTRA = ['🍎', '🚗', '🌟', '🐳', '🍩', '🎈', '🌈', '🦄', '🐢', '🚀', '🍉', '🎸'];
+const EXTRA = ['🍎', '🚗', '🌟', '🐳', '🍩', '🎈', '🌈', '🦄', '🐢', '🚀', '🍉', '🎸', '🦒', '🍕', '⚓', '🎯'];
 
 export interface MemoryBoard { skillId: string; step: number; cards: string[] }
 

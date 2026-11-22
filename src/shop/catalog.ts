@@ -3,7 +3,7 @@ import type { Currency, ThemeId } from '../core/types';
 export type Category = 'furniture' | 'clothes' | 'pets' | 'outdoor' | 'toys' | 'decor';
 export type Price = Partial<Record<Currency, number>>;
 
-export type HatKind = 'cap' | 'beanie' | 'crown' | 'tiara' | 'ears' | 'helmet' | 'bow' | 'explorer';
+export type HatKind = 'cap' | 'beanie' | 'crown' | 'tiara' | 'ears' | 'helmet' | 'bow' | 'explorer' | 'witch';
 export type CreatureKind = 'sparkit' | 'puddlepup' | 'sproutle' | 'embertail' | 'pebblet' | 'glimmerwing';
 
 export interface Wear {
@@ -14,7 +14,7 @@ export interface Wear {
 export interface CatalogItem {
   id: string;
   name: string;
-  theme: ThemeId | 'basic';
+  theme: ThemeId | 'basic' | 'seasonal';
   category: Category;
   price: Price;
   /** Main picture. */
@@ -33,6 +33,26 @@ export interface CatalogItem {
   size?: number;
   /** Clothes and pets: own at most one. */
   unique?: boolean;
+  /** Seasonal items are only for sale during their season (kids keep them forever). */
+  season?: SeasonId;
+}
+
+export type SeasonId = 'fall' | 'halloween' | 'winter' | 'valentine' | 'spring' | 'summer';
+export interface Season { id: SeasonId; name: string; emoji: string; from: string; to: string }
+
+/** Month-day ranges, inclusive. Halloween overlaps fall on purpose. */
+export const SEASONS: Season[] = [
+  { id: 'fall', name: 'Fall Harvest', emoji: '🍂', from: '09-15', to: '11-30' },
+  { id: 'halloween', name: 'Halloween', emoji: '🎃', from: '10-01', to: '10-31' },
+  { id: 'winter', name: 'Winter Wonderland', emoji: '❄️', from: '12-01', to: '01-31' },
+  { id: 'valentine', name: 'Valentine’s', emoji: '💝', from: '02-01', to: '02-20' },
+  { id: 'spring', name: 'Spring Bloom', emoji: '🌷', from: '03-01', to: '05-31' },
+  { id: 'summer', name: 'Summer Fun', emoji: '🏖️', from: '06-01', to: '08-31' },
+];
+
+export function seasonsOn(date: Date): Season[] {
+  const md = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return SEASONS.filter((s) => (s.from <= s.to ? md >= s.from && md <= s.to : md >= s.from || md <= s.to));
 }
 
 /** Room backgrounds. Owned like items but bought from the Rooms tab. */
@@ -52,6 +72,14 @@ const p = (id: string, name: string, theme: CatalogItem['theme'], emoji: string,
   ({ id, name, theme, category: 'pets', price: { gems }, emoji, layer: 'floor', size: 0.8, unique: true, ...extra });
 const o = (id: string, name: string, theme: CatalogItem['theme'], emoji: string, leaves: number, extra: Partial<CatalogItem> = {}): CatalogItem =>
   ({ id, name, theme, category: 'outdoor', price: { leaves }, emoji, layer: 'floor', size: 1.2, ...extra });
+const d = (id: string, name: string, emoji: string, shards: number, extra: Partial<CatalogItem> = {}): CatalogItem =>
+  ({ id, name, theme: 'basic', category: 'decor', price: { shards }, emoji, layer: 'floor', size: 1, ...extra });
+const s = (id: string, name: string, season: SeasonId, category: Category, emoji: string, price: Price, extra: Partial<CatalogItem> = {}): CatalogItem =>
+  ({
+    id, name, theme: 'seasonal', season, category, price, emoji,
+    layer: category === 'clothes' ? undefined : 'floor', size: category === 'outdoor' ? 1.2 : category === 'toys' ? 0.7 : category === 'pets' ? 0.8 : 1,
+    unique: category === 'clothes' || category === 'pets', ...extra,
+  });
 const t = (id: string, name: string, theme: CatalogItem['theme'], emoji: string, pieces: number, extra: Partial<CatalogItem> = {}): CatalogItem =>
   ({ id, name, theme, category: 'toys', price: { pieces }, emoji, layer: 'floor', size: 0.7, ...extra });
 
@@ -153,7 +181,56 @@ export const ITEMS: CatalogItem[] = [
   o('bb_yard_tree', 'Blocky tree', 'bricks', '🌲', 40, { size: 1.6, badge: '🟩' }),
   t('bb_toy_bin', 'Brick bin', 'bricks', '🪣', 30, { badge: '🧱' }),
   t('bb_toy_rocket', 'Brick rocket kit', 'bricks', '🚀', 160, { size: 1.1 }),
+
+  // ---- 🧭 Explorer decor (bought with Compass Shards from the World subject) ----
+  d('ex_globe', 'Spinning globe', '🌍', 60, { size: 0.9 }),
+  d('ex_map', 'World map poster', '🗺️', 40, { layer: 'wall', size: 1.3 }),
+  d('ex_telescope', 'Telescope', '🔭', 120, { size: 1.1 }),
+  d('ex_vase', 'Ancient vase', '🏺', 80),
+  d('ex_statue', 'Stone head statue', '🗿', 150, { size: 1.3 }),
+  d('ex_ship', 'Ship in a bottle', '🚢', 90, { badge: '🍾', size: 0.9 }),
+  d('ex_compass', 'Giant compass', '🧭', 50, { size: 0.9 }),
+  d('ex_flags', 'Flag banner', '🎏', 30, { layer: 'wall' }),
+  d('ex_balloon', 'Hot-air balloon model', '🎈', 70, { badge: '🧺' }),
+  d('ex_tent', 'Explorer’s tent', '⛺', 140, { size: 1.6 }),
+  { id: 'ex_hat', name: 'Safari hat', theme: 'basic', category: 'clothes', price: { shards: 60 }, emoji: '👒', unique: true, wear: { hat: { kind: 'explorer', color: '#c8a26b', color2: '#8b5e3c' } } },
+  { id: 'ex_outfit', name: 'Explorer vest', theme: 'basic', category: 'clothes', price: { shards: 120 }, emoji: '🦺', unique: true, wear: { outfit: { shirt: '#c8a26b', emblem: '🧭', legs: '#5b4632' } } },
+
+  // ---- Seasonal (only sold during the season) ----
+  s('sea_fall_pumpkin', 'Pumpkin patch', 'fall', 'outdoor', '🎃', { leaves: 40 }, { size: 1 }),
+  s('sea_fall_leaves', 'Leaf pile', 'fall', 'outdoor', '🍂', { leaves: 30 }),
+  s('sea_fall_turkey', 'Turkey plush', 'fall', 'toys', '🦃', { pieces: 45 }),
+  s('sea_fall_pie', 'Apple pie', 'fall', 'furniture', '🥧', { coins: 30 }, { size: 0.7 }),
+  s('sea_fall_corn', 'Corn wreath', 'fall', 'furniture', '🌽', { coins: 35 }, { layer: 'wall', badge: '🍁' }),
+  { ...s('sea_fall_sweater', 'Cozy fall sweater', 'fall', 'clothes', '🧥', { stars: 70 }), wear: { outfit: { shirt: '#c2410c', emblem: '🍁', legs: '#5b4632' } } },
+  s('sea_hw_ghost', 'Friendly ghost', 'halloween', 'toys', '👻', { pieces: 40 }),
+  s('sea_hw_web', 'Spider web', 'halloween', 'furniture', '🕸️', { coins: 25 }, { layer: 'wall' }),
+  s('sea_hw_bat', 'Pet bat', 'halloween', 'pets', '🦇', { gems: 90 }),
+  s('sea_hw_candy', 'Candy bowl', 'halloween', 'toys', '🍬', { pieces: 25 }, { badge: '🍫' }),
+  { ...s('sea_hw_hat', 'Witch hat', 'halloween', 'clothes', '🧙', { stars: 50 }), wear: { hat: { kind: 'witch', color: '#4c1d95', color2: '#f59e0b' } } },
+  s('sea_win_snowman', 'Snowman', 'winter', 'outdoor', '⛄', { leaves: 60 }, { size: 1.4 }),
+  s('sea_win_tree', 'Holiday tree', 'winter', 'furniture', '🎄', { coins: 120 }, { size: 1.8 }),
+  s('sea_win_gifts', 'Pile of presents', 'winter', 'toys', '🎁', { pieces: 50 }),
+  s('sea_win_lights', 'Snowflake lights', 'winter', 'furniture', '❄️', { coins: 30 }, { layer: 'wall' }),
+  s('sea_win_reindeer', 'Reindeer', 'winter', 'pets', '🦌', { gems: 150 }, { size: 1.2 }),
+  { ...s('sea_win_hat', 'Snowy pom-pom hat', 'winter', 'clothes', '🧶', { stars: 40 }), wear: { hat: { kind: 'beanie', color: '#dc2626', color2: '#ffffff' } } },
+  s('sea_val_balloon', 'Heart balloon', 'valentine', 'toys', '💝', { pieces: 30 }),
+  s('sea_val_bear', 'Love bear', 'valentine', 'toys', '🧸', { pieces: 45 }, { badge: '💖' }),
+  s('sea_val_art', 'Heart art', 'valentine', 'furniture', '💌', { coins: 30 }, { layer: 'wall' }),
+  { ...s('sea_val_shirt', 'Heart sweater', 'valentine', 'clothes', '💗', { stars: 60 }), wear: { outfit: { shirt: '#f472b6', emblem: '💝' } } },
+  s('sea_spr_tulips', 'Tulip garden', 'spring', 'outdoor', '🌷', { leaves: 35 }),
+  s('sea_spr_chick', 'Spring chick', 'spring', 'pets', '🐣', { gems: 80 }),
+  s('sea_spr_rainbow', 'Rainbow art', 'spring', 'furniture', '🌈', { coins: 40 }, { layer: 'wall' }),
+  s('sea_spr_butterflies', 'Butterfly garden', 'spring', 'outdoor', '🦋', { leaves: 70 }, { badge: '🌼' }),
+  { ...s('sea_spr_hat', 'Flower crown', 'spring', 'clothes', '🌸', { stars: 45 }), wear: { hat: { kind: 'tiara', color: '#86efac', color2: '#f472b6' } } },
+  s('sea_sum_umbrella', 'Beach umbrella', 'summer', 'outdoor', '🏖️', { leaves: 60 }, { size: 1.4 }),
+  s('sea_sum_icecream', 'Ice cream cart', 'summer', 'outdoor', '🍦', { leaves: 80 }, { size: 1.2 }),
+  s('sea_sum_flamingo', 'Flamingo float', 'summer', 'outdoor', '🦩', { leaves: 50 }),
+  s('sea_sum_shells', 'Seashell collection', 'summer', 'toys', '🐚', { pieces: 35 }),
+  { ...s('sea_sum_outfit', 'Beach outfit', 'summer', 'clothes', '🩱', { stars: 60 }), wear: { outfit: { shirt: '#22d3ee', emblem: '🌊', legs: '#facc15' } } },
 ];
+
+export const SEASONAL_ITEMS = ITEMS.filter((i) => i.season);
 
 export const ITEM_BY_ID = Object.fromEntries(ITEMS.map((i) => [i.id, i])) as Record<string, CatalogItem>;
 
@@ -170,6 +247,10 @@ export const BACKDROPS: Backdrop[] = [
   { id: 'floor_tiles', kind: 'floor', name: 'Checker tiles', css: 'repeating-conic-gradient(#ffffff 0 25%, #e2e8f0 0 50%) 0 0 / 60px 60px', price: { coins: 30 } },
   { id: 'floor_grass', kind: 'floor', name: 'Indoor grass', css: 'repeating-linear-gradient(90deg, #6bbf59 0 6px, #5aae49 6px 12px)', price: { coins: 40 } },
   { id: 'floor_pink', kind: 'floor', name: 'Pink fluffy', css: '#ffc7de', price: { coins: 30 } },
+  { id: 'wall_worldmap', kind: 'wallpaper', name: 'World map', css: 'radial-gradient(ellipse 60px 34px at 30% 35%, #9bd08a 98%, transparent) , radial-gradient(ellipse 46px 60px at 70% 60%, #9bd08a 98%, transparent), radial-gradient(ellipse 30px 20px at 82% 25%, #9bd08a 98%, transparent), #8fc7f0', price: { shards: 60 } },
+  { id: 'wall_castle', kind: 'wallpaper', name: 'Castle stones', css: 'repeating-linear-gradient(0deg, #8a8f9e 0 3px, transparent 3px 34px), repeating-linear-gradient(90deg, #8a8f9e 0 3px, #c3c7d1 3px 70px)', price: { shards: 50 } },
+  { id: 'wall_ocean', kind: 'wallpaper', name: 'Ocean waves', css: 'radial-gradient(circle at 50% 100%, transparent 14px, #5bb8e8 15px 18px, transparent 19px) 0 0 / 40px 22px, #bfe6fb', price: { shards: 50 } },
+  { id: 'floor_stone', kind: 'floor', name: 'Stone path', css: 'radial-gradient(circle at 30% 40%, #b7b2a6 30%, transparent 32%) 0 0 / 48px 48px, radial-gradient(circle at 70% 70%, #a8a296 26%, transparent 28%) 0 0 / 48px 48px, #d6d1c4', price: { shards: 40 } },
 ];
 
 export const BACKDROP_BY_ID = Object.fromEntries(BACKDROPS.map((b) => [b.id, b])) as Record<string, Backdrop>;

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { GENERATORS, generateQuestion, numberChoices } from './questions';
+import { numberChoices } from './questions';
+import { CHOICE_GAMES } from '../choiceGens';
+
+const GENERATORS = CHOICE_GAMES.numberPop.gens;
+const generateQuestion = (id: string, ctx: Parameters<(typeof GENERATORS)[string]>[0]) => GENERATORS[id](ctx);
 import { SKILLS } from '../../core/skills';
 import { seeded } from '../../core/random';
 

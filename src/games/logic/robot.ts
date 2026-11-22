@@ -23,7 +23,11 @@ interface Spec { size: number; walls: [number, number]; dist: [number, number] }
 const SPECS: Record<string, Spec[]> = {
   'l.pk.maze': [{ size: 3, walls: [0, 0], dist: [2, 3] }, { size: 3, walls: [1, 2], dist: [3, 4] }, { size: 4, walls: [2, 3], dist: [4, 5] }],
   'l.k.maze': [{ size: 4, walls: [2, 3], dist: [3, 5] }, { size: 4, walls: [3, 5], dist: [5, 6] }, { size: 5, walls: [5, 7], dist: [6, 8] }],
+  'l.1.robot': [{ size: 3, walls: [0, 0], dist: [2, 2] }, { size: 4, walls: [0, 1], dist: [2, 3] }, { size: 4, walls: [1, 3], dist: [3, 4] }],
   'l.2.robot': [{ size: 4, walls: [0, 1], dist: [2, 3] }, { size: 5, walls: [3, 5], dist: [4, 5] }, { size: 5, walls: [5, 7], dist: [6, 8] }],
+  'l.3.robot': [{ size: 5, walls: [4, 6], dist: [6, 7] }, { size: 6, walls: [6, 9], dist: [7, 9] }, { size: 6, walls: [8, 11], dist: [9, 10] }],
+  'l.4.robot': [{ size: 6, walls: [8, 10], dist: [8, 10] }, { size: 6, walls: [10, 13], dist: [10, 11] }, { size: 7, walls: [12, 16], dist: [11, 13] }],
+  'l.5.robot': [{ size: 7, walls: [12, 16], dist: [11, 13] }, { size: 7, walls: [15, 19], dist: [13, 15] }, { size: 7, walls: [17, 21], dist: [14, 16] }],
 };
 
 export function shortestPath(size: number, walls: Set<string>, start: Pos, goal: Pos): Pos[] | null {
@@ -48,7 +52,7 @@ export function shortestPath(size: number, walls: Set<string>, start: Pos, goal:
 
 export function makePuzzle(skillId: string, step: number, rng: Rng): Puzzle {
   const spec = (SPECS[skillId] ?? SPECS['l.k.maze'])[Math.min(step, 3) - 1];
-  const mode = skillId === 'l.2.robot' ? 'program' : 'tap';
+  const mode = skillId.endsWith('.robot') ? 'program' : 'tap';
   for (let attempt = 0; attempt < 500; attempt++) {
     const rnd = (): Pos => ({ x: randInt(rng, 0, spec.size - 1), y: randInt(rng, 0, spec.size - 1) });
     const start = rnd();

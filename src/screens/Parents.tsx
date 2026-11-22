@@ -1,4 +1,8 @@
 import { useMemo, useState } from 'react';
+import { ParentReport } from './ParentReport';
+import { minutesLeft, LIMIT_CHOICES } from '../core/report';
+import { dayKey } from '../core/random';
+import { setA11y, useA11y } from '../ui/a11y';
 import { useStore, saveKid } from '../data/store';
 import { signIn, signOut, signUp, syncNow } from '../data/syncManager';
 import { GRADES, GRADE_LABEL, type Grade } from '../core/types';
@@ -51,8 +55,22 @@ function GrownUpGate({ onPass }: { onPass: () => void }) {
 }
 
 function ParentPanel() {
+  const [tab, setTab] = useState<'report' | 'settings'>('report');
+  return (
+    <>
+      <div className="tabs parent-tabs">
+        <button className={`tab ${tab === 'report' ? 'on' : ''}`} onClick={() => setTab('report')}>📊 Progress report</button>
+        <button className={`tab ${tab === 'settings' ? 'on' : ''}`} onClick={() => setTab('settings')}>⚙️ Settings</button>
+      </div>
+      {tab === 'report' ? <ParentReport /> : <Settings />}
+    </>
+  );
+}
+
+function Settings() {
   const sync = useStore((s) => s.sync);
   const kids = useStore((s) => s.kids);
+  const rounds = useStore((s) => s.rounds);
   return (
     <div className="parent-panel">
       <section className="card">
@@ -68,21 +86,42 @@ function ParentPanel() {
       <section className="card">
         <h3>👧 Players</h3>
         {kids.length === 0 && <p>No players on this device yet.</p>}
-        {kids.map((k) => (
-          <div key={k.id} className="kid-row">
-            <Avatar config={k.avatar} size={44} />
-            <b className="kid-row-name">{k.name}</b>
-            <label>
-              Grade{' '}
-              <select value={k.grade} onChange={(e) => saveKid({ ...k, grade: e.target.value as Grade, updatedAt: Date.now() })}>
-                {GRADES.map((g) => <option key={g} value={g}>{GRADE_LABEL[g]}</option>)}
-              </select>
-            </label>
-          </div>
-        ))}
-        <p className="hint">Games still adjust up and down on their own; the grade is where they start.</p>
+        {kids.map((k) => {
+          const left = minutesLeft(k, rounds);
+          return (
+            <div key={k.id} className="kid-block">
+              <div className="kid-row">
+                <Avatar config={k.avatar} size={44} />
+                <b className="kid-row-name">{k.name}</b>
+              </div>
+              <label className="setting-row">
+                Grade
+                <select value={k.grade} onChange={(e) => saveKid({ ...k, grade: e.target.value as Grade, updatedAt: Date.now() })}>
+                  {GRADES.map((g) => <option key={g} value={g}>{GRADE_LABEL[g]}</option>)}
+                </select>
+              </label>
+              <label className="setting-row">
+                Daily play time
+                <select value={k.dailyLimitMin ?? ''} onChange={(e) => saveKid({ ...k, dailyLimitMin: e.target.value ? Number(e.target.value) : null, updatedAt: Date.now() })}>
+                  {LIMIT_CHOICES.map((m) => <option key={String(m)} value={m ?? ''}>{m ? `${m} minutes` : 'No limit'}</option>)}
+                </select>
+              </label>
+              {left !== null && (
+                <div className="setting-row">
+                  <span>{left > 0 ? `${Math.ceil(left)} min left today` : 'Time’s up for today'}</span>
+                  <button className="small-btn alt" onClick={() => saveKid({
+                    ...k, updatedAt: Date.now(),
+                    limitBonus: { day: dayKey(), minutes: (k.limitBonus?.day === dayKey() ? k.limitBonus.minutes : 0) + 15 },
+                  })}>+15 min today</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        <p className="hint">Games still adjust up and down on their own; the grade is where they start. You can set a different starting grade per subject in the progress report. When play time runs out, the current round finishes first, and the house and shop stay open.</p>
       </section>
       <SoundSettings />
+      <AccessibilitySettings />
     </div>
   );
 }
@@ -150,6 +189,23 @@ function SoundSettings() {
       <label className="toggle"><input type="checkbox" checked={music} onChange={(e) => setAudioSetting('music', e.target.checked)} /> Background music</label>
       <label className="toggle"><input type="checkbox" checked={sounds} onChange={(e) => setAudioSetting('sounds', e.target.checked)} /> Sound effects</label>
       <p className="hint">Spoken instructions always stay on, since younger kids need them to play. Use the tablet’s volume buttons to make them quieter.</p>
+    </section>
+  );
+}
+
+function AccessibilitySettings() {
+  const big = useA11y('bigText');
+  const motion = useA11y('reduceMotion');
+  const slow = useA11y('slowVoice');
+  const contrast = useA11y('highContrast');
+  return (
+    <section className="card">
+      <h3>♿ Accessibility on this device</h3>
+      <label className="toggle"><input type="checkbox" checked={big} onChange={(e) => setA11y('bigText', e.target.checked)} /> Bigger text and buttons</label>
+      <label className="toggle"><input type="checkbox" checked={slow} onChange={(e) => setA11y('slowVoice', e.target.checked)} /> Slower spoken instructions</label>
+      <label className="toggle"><input type="checkbox" checked={motion} onChange={(e) => setA11y('reduceMotion', e.target.checked)} /> Less motion (no floating, bouncing or confetti)</label>
+      <label className="toggle"><input type="checkbox" checked={contrast} onChange={(e) => setA11y('highContrast', e.target.checked)} /> Stronger outlines and contrast</label>
+      <p className="hint">Right and wrong answers are never shown by color alone: wrong choices fade out and the right one glows and pulses. Less motion also turns on automatically if the tablet’s own “remove animations” setting is on.</p>
     </section>
   );
 }

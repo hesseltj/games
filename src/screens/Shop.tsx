@@ -4,7 +4,7 @@ import { balances } from '../core/economy';
 import type { Kid, ThemeId } from '../core/types';
 import { THEMES, THEME_BY_ID } from '../core/themes';
 import { CURRENCIES } from '../core/subjects';
-import { BACKDROPS, ITEMS, ITEM_BY_ID, BACKDROP_BY_ID, ROOMS, type Category, type CatalogItem } from '../shop/catalog';
+import { BACKDROPS, ITEMS, ITEM_BY_ID, BACKDROP_BY_ID, ROOMS, seasonsOn, type Category, type CatalogItem } from '../shop/catalog';
 import { isUnique, priceOf, shortfall } from '../shop/logic';
 import { buy, currentPrice, isRoomUnlocked, setGoal, todaysDeal, unlockRoom } from '../shop/actions';
 import { ItemArt } from '../ui/ItemArt';
@@ -16,13 +16,14 @@ import { Confetti } from '../ui/Confetti';
 import { sfx } from '../audio/sfx';
 import { speak } from '../audio/speech';
 
-type Tab = Category | 'rooms';
+type Tab = Category | 'rooms' | 'seasonal';
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'furniture', label: 'Furniture', emoji: '🪙' },
   { id: 'clothes', label: 'Clothes', emoji: '⭐' },
   { id: 'pets', label: 'Pets', emoji: '💎' },
   { id: 'outdoor', label: 'Yard', emoji: '🍃' },
   { id: 'toys', label: 'Toys', emoji: '🧩' },
+  { id: 'decor', label: 'Explore', emoji: '🧭' },
   { id: 'rooms', label: 'Rooms', emoji: '🏠' },
 ];
 
@@ -42,11 +43,15 @@ export function Shop({ kid, onBack }: { kid: Kid; onBack: () => void }) {
   const dealItem = ITEM_BY_ID[deal.itemId];
 
   const themeOrder = [kid.favoriteTheme, ...THEMES.map((t) => t.id).filter((t) => t !== kid.favoriteTheme)];
-  const items = ITEMS.filter((i) => (i.category === tab || (tab === 'furniture' && i.category === 'decor')) && (theme === 'all' || i.theme === theme))
+  const seasons = seasonsOn(new Date());
+  const seasonIds = new Set(seasons.map((s) => s.id));
+  const tabs = seasons.length ? [{ id: 'seasonal' as Tab, label: seasons[seasons.length - 1].name, emoji: seasons[seasons.length - 1].emoji }, ...TABS] : TABS;
+  const items = ITEMS.filter((i) => (tab === 'seasonal' ? !!i.season && seasonIds.has(i.season) : !i.season && i.category === tab)
+    && (theme === 'all' || tab === 'seasonal' || tab === 'decor' || i.theme === theme))
     .filter((i) => Object.keys(i.price).length > 0)
     .sort((a, b) => themeRank(a) - themeRank(b) || total(a.price) - total(b.price));
   function themeRank(i: CatalogItem) {
-    return i.theme === 'basic' ? 99 : themeOrder.indexOf(i.theme);
+    return i.theme === 'basic' || i.theme === 'seasonal' ? 99 : themeOrder.indexOf(i.theme);
   }
 
   const owned = (id: string) => myInv.filter((i) => i.itemId === id).length;
@@ -83,14 +88,19 @@ export function Shop({ kid, onBack }: { kid: Kid; onBack: () => void }) {
       )}
 
       <div className="tabs">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button key={t.id} className={`tab ${tab === t.id ? 'on' : ''}`} onClick={() => { sfx.tap(); setTab(t.id); }}>
             <span>{t.emoji}</span> {t.label}
           </button>
         ))}
       </div>
 
-      {tab !== 'rooms' && (
+      {tab === 'seasonal' && (
+        <div className="season-note">
+          {seasons.map((s) => <span key={s.id}>{s.emoji} {s.name}: for sale until {new Date(2000, Number(s.to.slice(0, 2)) - 1, Number(s.to.slice(3))).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>)}
+        </div>
+      )}
+      {tab !== 'rooms' && tab !== 'seasonal' && tab !== 'decor' && (
         <div className="theme-chips">
           <button className={`chip ${theme === 'all' ? 'on' : ''}`} onClick={() => setTheme('all')}>All</button>
           {themeOrder.map((id) => (
@@ -183,7 +193,7 @@ function BuySheet({ kid, sel, wallet, owned, onClose, onBuy }: {
             : <span className="room-art big">{room?.emoji}</span>}
         </div>
         <h2>{name}</h2>
-        {item && item.theme !== 'basic' && <div className="sheet-theme">{THEME_BY_ID[item.theme].emoji} {THEME_BY_ID[item.theme].name}</div>}
+        {item && item.theme !== 'basic' && item.theme !== 'seasonal' && <div className="sheet-theme">{THEME_BY_ID[item.theme].emoji} {THEME_BY_ID[item.theme].name}</div>}
         <PriceTag price={price} wallet={wallet} />
         {soldOut ? (
           <p className="sheet-note">You already have this! ✓</p>
