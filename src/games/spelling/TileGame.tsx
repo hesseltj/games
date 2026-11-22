@@ -4,6 +4,7 @@ import { useRound } from '../../core/useRound';
 import { speak, setSpeechRate, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
+import { GameBuddy, comboOf } from '../shared/GameBuddy';
 import type { GameProps } from '../shared/ChoiceGame';
 import { tileQuestion, type TileQuestion } from './tiles';
 
@@ -80,6 +81,7 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
           </button>
         ))}
       </div>
+      <GameBuddy kid={kid} mood={done ? 'cheer' : shake !== null ? 'oops' : 'idle'} combo={done && misses === 0 ? comboOf(round.results) + 1 : 0} />
       {garden && (
         <div className="garden-row" aria-hidden="true">
           {Array.from({ length: round.total }, (_, i) => <span key={i} className={i < flowers ? 'grown' : ''}>{i < flowers ? ['🌷', '🌻', '🌼', '🌸', '🌹'][i % 5] : '🌱'}</span>)}

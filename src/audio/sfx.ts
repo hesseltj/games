@@ -1,5 +1,11 @@
 // Small synthesized sound effects, so the app needs no audio files and works offline.
+import { getAudioSetting } from './settings';
+
 let ctx: AudioContext | null = null;
+
+export function audioContext() {
+  return ctx;
+}
 
 export function unlockAudio() {
   if (!ctx) {
@@ -11,7 +17,7 @@ export function unlockAudio() {
 }
 
 function tone(freq: number, start: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, slideTo?: number) {
-  if (!ctx) return;
+  if (!ctx || !getAudioSetting('sounds')) return;
   const t0 = ctx.currentTime + start;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -33,4 +39,9 @@ export const sfx = {
   boop: () => tone(300, 0, 0.18, 'sine', 0.12, 220),
   coin: () => [0, 0.08, 0.16, 0.24, 0.32].forEach((t, i) => tone(988 + i * 120, t, 0.1, 'square', 0.05)),
   fanfare: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, i === 3 ? 0.45 : 0.14, 'triangle', 0.15)),
+  levelUp: () => [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, i * 0.09, i === 5 ? 0.6 : 0.12, 'triangle', 0.14)),
+  sparkle: () => [1568, 1760, 2093, 2349, 2637].forEach((f, i) => tone(f, i * 0.05, 0.12, 'sine', 0.06)),
+  shake: () => [0, 0.1, 0.2].forEach((t) => tone(180, t, 0.07, 'square', 0.05)),
+  open: () => { tone(300, 0, 0.25, 'sawtooth', 0.05, 900); [784, 988, 1175, 1568].forEach((f, i) => tone(f, 0.2 + i * 0.07, 0.2, 'triangle', 0.12)); },
+  combo: () => [880, 1109, 1319].forEach((f, i) => tone(f, i * 0.06, 0.1, 'square', 0.05)),
 };

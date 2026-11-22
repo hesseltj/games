@@ -28,6 +28,8 @@ export interface Kid {
   /** Shop item the kid is saving up for (shown on the hub). */
   goalItemId?: string | null;
   starterGranted?: boolean;
+  /** Badges the kid has already been shown, so new ones can be celebrated. */
+  seenBadges?: string[];
   createdAt: number;
   updatedAt: number;
 }
@@ -100,5 +102,7 @@ export interface RoundLog {
   total: number;
   durationSec: number;
   earned: number;
+  /** Inventory id of the buddy pet during this round (creatures evolve with rounds played together). */
+  buddy?: string | null;
   createdAt: number;
 }

@@ -32,6 +32,15 @@ in a shop to dress up their character and decorate their house.
 - Every subject has games at Pre-K, K and 2nd grade. Games meant only for older grades stay
   hidden until a kid reaches them.
 
+**Phase 4 (make it sticky):** done.
+- Player levels (the same XP per round at every grade), with a present at every level and a new creature at levels 5, 10, 15…
+- Daily streaks (one missed day a week is forgiven), presents at 3, 7, 14 and 30 days
+- A daily quest with a present when it's done
+- 21+ badges, including mastery badges per subject and grade
+- Creature Book: 6 original creatures, each evolving twice as a buddy (after 15 and 40 rounds)
+- Background music, more sounds, the kid's character cheering in games, "3 in a row!" combos
+- Rooms now unlock for 300 coins plus 75 of another currency
+
 ## Development
 
 ```bash

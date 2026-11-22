@@ -4,7 +4,7 @@ export type Category = 'furniture' | 'clothes' | 'pets' | 'outdoor' | 'toys' | '
 export type Price = Partial<Record<Currency, number>>;
 
 export type HatKind = 'cap' | 'beanie' | 'crown' | 'tiara' | 'ears' | 'helmet' | 'bow' | 'explorer';
-export type CreatureKind = 'sparkit' | 'puddlepup' | 'sproutle';
+export type CreatureKind = 'sparkit' | 'puddlepup' | 'sproutle' | 'embertail' | 'pebblet' | 'glimmerwing';
 
 export interface Wear {
   hat?: { kind: HatKind; color: string; color2?: string };
@@ -136,6 +136,9 @@ export const ITEMS: CatalogItem[] = [
   p('cc_pet_puddlepup', 'Puddlepup', 'creatures', '', 120, { creature: 'puddlepup' }),
   o('cc_yard_habitat', 'Creature habitat pond', 'creatures', '🏞️', 180, { size: 1.8 }),
   o('cc_yard_nest', 'Sproutle egg nest', 'creatures', '', 140, { creature: 'sproutle', unique: true }),
+  p('cc_pet_embertail', 'Embertail', 'creatures', '', 150, { creature: 'embertail' }),
+  p('cc_pet_pebblet', 'Pebblet', 'creatures', '', 150, { creature: 'pebblet' }),
+  p('cc_pet_glimmerwing', 'Glimmerwing', 'creatures', '', 180, { creature: 'glimmerwing' }),
   t('cc_toy_cards', 'Creature-card pack', 'creatures', '🎴', 40),
   t('cc_toy_arena', 'Toy battle arena', 'creatures', '🏟️', 220, { size: 1.4 }),
 
@@ -184,9 +187,9 @@ export interface RoomInfo {
 export const ROOMS: RoomInfo[] = [
   { type: 'bedroom', name: 'Bedroom', emoji: '🛏️', price: {} },
   { type: 'yard', name: 'Yard', emoji: '🌳', price: {}, outdoor: true },
-  { type: 'living', name: 'Living Room', emoji: '🛋️', price: { coins: 500, stars: 100 } },
-  { type: 'playroom', name: 'Playroom', emoji: '🧸', price: { coins: 500, pieces: 100 } },
-  { type: 'kitchen', name: 'Kitchen', emoji: '🍳', price: { coins: 500, gems: 100 } },
+  { type: 'living', name: 'Living Room', emoji: '🛋️', price: { coins: 300, stars: 75 } },
+  { type: 'playroom', name: 'Playroom', emoji: '🧸', price: { coins: 300, pieces: 75 } },
+  { type: 'kitchen', name: 'Kitchen', emoji: '🍳', price: { coins: 300, gems: 75 } },
 ];
 
 export const ROOM_BY_TYPE = Object.fromEntries(ROOMS.map((r) => [r.type, r])) as Record<RoomType, RoomInfo>;

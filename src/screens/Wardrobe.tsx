@@ -4,7 +4,7 @@ import type { Kid } from '../core/types';
 import { ITEM_BY_ID } from '../shop/catalog';
 import { equip } from '../shop/actions';
 import { Avatar } from '../ui/Avatar';
-import { ItemArt } from '../ui/ItemArt';
+import { InvArt } from '../ui/InvArt';
 import { wearFor } from '../ui/KidAvatar';
 import { LookEditor } from '../ui/LookEditor';
 import { sfx } from '../audio/sfx';
@@ -53,7 +53,7 @@ export function Wardrobe({ kid, onBack, onShop }: { kid: Kid; onBack: () => void
         <div className="wardrobe-body">
           <div className="wardrobe-preview">
             <Avatar config={kid.avatar} size={170} wear={wearFor(kid)} />
-            {buddyItem && <span className="buddy hop"><ItemArt item={buddyItem} size={80} /></span>}
+            {buddyItem && kid.equipped?.buddy && <span className="buddy hop"><InvArt invId={kid.equipped.buddy} item={buddyItem} size={80} /></span>}
           </div>
           <div className="wardrobe-grid">
             <button className={`closet-card ${!current ? 'sel' : ''}`} onClick={() => choose(null)}>
@@ -63,7 +63,7 @@ export function Wardrobe({ kid, onBack, onShop }: { kid: Kid; onBack: () => void
               const value = slot === 'buddy' ? inv.id : item.id;
               return (
                 <button key={inv.id} className={`closet-card ${current === value ? 'sel' : ''}`} onClick={() => choose(value)}>
-                  <ItemArt item={item} size={64} />
+                  <InvArt invId={inv.id} item={item} size={64} />
                   <span>{item.name}</span>
                 </button>
               );

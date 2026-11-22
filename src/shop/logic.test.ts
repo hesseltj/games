@@ -15,8 +15,8 @@ describe('catalog', () => {
     const ids = [...ITEMS.map((i) => i.id), ...BACKDROPS.map((b) => b.id)];
     expect(new Set(ids).size).toBe(ids.length);
   });
-  it('has 10 items in every theme', () => {
-    for (const t of THEMES) expect(ITEMS.filter((i) => i.theme === t.id), t.id).toHaveLength(10);
+  it('has at least 10 items in every theme', () => {
+    for (const t of THEMES) expect(ITEMS.filter((i) => i.theme === t.id).length, t.id).toBeGreaterThanOrEqual(10);
   });
   it('every item has something to draw', () => {
     for (const i of ITEMS) expect(i.emoji || i.creature || i.rug, i.id).toBeTruthy();
