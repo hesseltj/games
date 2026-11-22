@@ -17,7 +17,7 @@ describe('Number Pop generators', () => {
       it(`${skill.id} step ${step}: always exactly one correct, distinct options`, () => {
         const rng = seeded(skill.id.length * 100 + step);
         for (let i = 0; i < 300; i++) {
-          const q = generateQuestion(skill.id, { rng, step, objects });
+          const q = generateQuestion(skill.id, { rng, step, objects, kidName: 'Sam' });
           expect(q.options.length).toBeGreaterThanOrEqual(2);
           expect(q.options.filter((o) => o.correct)).toHaveLength(1);
           const keys = q.options.map((o) => JSON.stringify(o.content));
@@ -35,7 +35,7 @@ describe('Number Pop generators', () => {
     const rng = seeded(7);
     for (let i = 0; i < 300; i++) {
       for (const id of ['m.k.add5', 'm.2.add20', 'm.2.add100', 'm.3.times']) {
-        const q = generateQuestion(id, { rng, step: 3, objects });
+        const q = generateQuestion(id, { rng, step: 3, objects, kidName: 'Sam' });
         const m = q.prompt.match(/^(\d+) ([+−×]) (\d+)/);
         expect(m, q.prompt).not.toBeNull();
         const [a, op, b] = [Number(m![1]), m![2], Number(m![3])];

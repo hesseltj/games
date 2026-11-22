@@ -1,4 +1,4 @@
-import type { ShapeName } from '../games/numberPop/questions';
+import type { ShapeName } from '../games/shared/types';
 
 const OUT = '#2d3a6b';
 

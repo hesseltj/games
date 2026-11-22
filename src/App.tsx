@@ -7,12 +7,20 @@ import { NewKid } from './screens/NewKid';
 import { Hub } from './screens/Hub';
 import { SubjectMenu } from './screens/SubjectMenu';
 import { Reward } from './screens/Reward';
-import { NumberPop } from './games/numberPop/NumberPop';
+import { GAME_COMPONENTS } from './games/registry';
+import { Shop } from './screens/Shop';
+import { House } from './screens/House';
+import { Wardrobe } from './screens/Wardrobe';
+import { Parents } from './screens/Parents';
 
 type Screen =
   | { name: 'profiles' }
   | { name: 'newKid' }
+  | { name: 'parents' }
   | { name: 'hub' }
+  | { name: 'shop' }
+  | { name: 'house' }
+  | { name: 'wardrobe' }
   | { name: 'subject'; subject: Subject }
   | { name: 'play'; subject: Subject; gameId: string; key: number }
   | { name: 'reward'; subject: Subject; gameId: string; summary: RoundSummary };
@@ -47,23 +55,37 @@ export function App() {
 
   if (!loaded) return <div className="screen loading">🏠</div>;
 
+  if (screen.name === 'parents') {
+    return <Parents onDone={() => setScreen({ name: 'profiles' })} />;
+  }
+
   if (!kid || screen.name === 'profiles' || screen.name === 'newKid') {
     if (screen.name === 'newKid' || kids.length === 0) {
-      return <NewKid onDone={pickKid} onCancel={() => setScreen({ name: 'profiles' })} />;
+      return <NewKid onDone={pickKid} onCancel={() => setScreen({ name: 'profiles' })}
+        onParents={() => setScreen({ name: 'parents' })} />;
     }
-    return <Profiles onPick={pickKid} onAdd={() => setScreen({ name: 'newKid' })} />;
+    return <Profiles onPick={pickKid} onAdd={() => setScreen({ name: 'newKid' })} onParents={() => setScreen({ name: 'parents' })} />;
   }
 
   switch (screen.name) {
     case 'hub':
-      return <Hub kid={kid} onSubject={(subject) => setScreen({ name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })} />;
+      return <Hub kid={kid} onSubject={(subject) => setScreen({ name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })}
+        onGo={(t) => setScreen({ name: t } as Screen)} />;
+    case 'shop':
+      return <Shop kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
+    case 'house':
+      return <House kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
+    case 'wardrobe':
+      return <Wardrobe kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
     case 'subject':
-      return <SubjectMenu subject={screen.subject} onBack={() => setScreen({ name: 'hub' })}
+      return <SubjectMenu kid={kid} subject={screen.subject} onBack={() => setScreen({ name: 'hub' })}
         onPlay={(gameId) => setScreen({ name: 'play', subject: screen.subject, gameId, key: Date.now() })} />;
-    case 'play':
-      return <NumberPop key={screen.key} kid={kid}
+    case 'play': {
+      const Game = GAME_COMPONENTS[screen.gameId];
+      return <Game key={screen.key} kid={kid}
         onQuit={() => setScreen({ name: 'subject', subject: screen.subject })}
         onFinish={(summary) => setScreen({ name: 'reward', subject: screen.subject, gameId: screen.gameId, summary })} />;
+    }
     case 'reward':
       return <Reward kid={kid} summary={screen.summary}
         onAgain={() => setScreen({ name: 'play', subject: screen.subject, gameId: screen.gameId, key: Date.now() })}

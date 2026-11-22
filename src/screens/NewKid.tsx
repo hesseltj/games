@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Avatar, DEFAULT_AVATAR, HAIR_COLORS, HAIR_STYLES, SHIRT_COLORS, SKIN_TONES } from '../ui/Avatar';
+import { DEFAULT_AVATAR } from '../ui/Avatar';
+import { LookEditor } from '../ui/LookEditor';
 import { THEMES } from '../core/themes';
 import { GRADES, GRADE_LABEL, type AvatarConfig, type Grade, type Kid, type ThemeId } from '../core/types';
 import { uid } from '../core/random';
@@ -8,7 +9,7 @@ import { sfx } from '../audio/sfx';
 
 type Step = 'name' | 'grade' | 'theme' | 'look';
 
-export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onCancel: () => void }) {
+export function NewKid({ onDone, onCancel, onParents }: { onDone: (id: string) => void; onCancel: () => void; onParents: () => void }) {
   const [step, setStep] = useState<Step>('name');
   const [name, setName] = useState('');
   const [grade, setGrade] = useState<Grade>('K');
@@ -37,6 +38,7 @@ export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onC
           <input className="name-input" value={name} maxLength={14} autoFocus placeholder="Type a name"
             onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && name.trim() && setStep('grade')} />
           <button className="big-btn" disabled={!name.trim()} onClick={() => { tap(); setStep('grade'); }}>Next →</button>
+          <button className="grownups-btn inline" onClick={() => { tap(); onParents(); }}>⚙️ Grown-ups: restore players from cloud backup</button>
         </div>
       )}
 
@@ -58,7 +60,7 @@ export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onC
           <div className="theme-grid">
             {THEMES.map((t) => (
               <button key={t.id} className={`theme-card ${theme === t.id ? 'sel' : ''}`} style={{ background: t.bg, borderColor: theme === t.id ? t.accent : 'transparent' }}
-                onClick={() => { tap(); setTheme(t.id); setAvatar((a) => ({ ...a })); }}>
+                onClick={() => { tap(); setTheme(t.id); }}>
                 <span className="theme-emoji">{t.emoji}</span>
                 <span>{t.name}</span>
               </button>
@@ -71,36 +73,10 @@ export function NewKid({ onDone, onCancel }: { onDone: (id: string) => void; onC
       {step === 'look' && (
         <div className="panel look">
           <h2>Make your character</h2>
-          <div className="look-row">
-            <div className="look-preview"><Avatar config={avatar} size={150} /></div>
-            <div className="look-options">
-              <Swatches label="Skin" values={SKIN_TONES} value={avatar.skin} onPick={(v) => setAvatar({ ...avatar, skin: v })} />
-              <div className="swatch-row">
-                <span className="swatch-label">Hair</span>
-                {Array.from({ length: HAIR_STYLES }, (_, i) => (
-                  <button key={i} className={`hair-btn ${avatar.hairStyle === i ? 'sel' : ''}`} onClick={() => { tap(); setAvatar({ ...avatar, hairStyle: i }); }}>
-                    <Avatar config={{ ...avatar, hairStyle: i }} size={40} />
-                  </button>
-                ))}
-              </div>
-              <Swatches label="Color" values={HAIR_COLORS} value={avatar.hairColor} onPick={(v) => setAvatar({ ...avatar, hairColor: v })} />
-              <Swatches label="Shirt" values={SHIRT_COLORS} value={avatar.shirt} onPick={(v) => setAvatar({ ...avatar, shirt: v })} />
-            </div>
-          </div>
+          <LookEditor avatar={avatar} onChange={setAvatar} />
           <button className="big-btn go" onClick={() => { sfx.fanfare(); finish(); }}>All done! 🎉</button>
         </div>
       )}
-    </div>
-  );
-}
-
-function Swatches({ label, values, value, onPick }: { label: string; values: string[]; value: string; onPick: (v: string) => void }) {
-  return (
-    <div className="swatch-row">
-      <span className="swatch-label">{label}</span>
-      {values.map((v) => (
-        <button key={v} className={`swatch ${v === value ? 'sel' : ''}`} style={{ background: v }} aria-label={v} onClick={() => { sfx.tap(); onPick(v); }} />
-      ))}
     </div>
   );
 }

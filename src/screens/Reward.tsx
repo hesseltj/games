@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Kid } from '../core/types';
 import type { RoundSummary } from '../core/useRound';
 import { CURRENCIES } from '../core/subjects';
-import { Avatar } from '../ui/Avatar';
+import { KidAvatar } from '../ui/KidAvatar';
 import { Confetti } from '../ui/Confetti';
 import { sfx } from '../audio/sfx';
 import { speak } from '../audio/speech';
@@ -33,7 +33,7 @@ export function Reward({ kid, summary, onAgain, onHome }: { kid: Kid; summary: R
       <Confetti />
       <h1 className="title">{summary.correctFirstTry === summary.total ? 'Perfect!' : 'Great job!'}</h1>
       <div className="reward-body">
-        <div className="dance"><Avatar config={kid.avatar} size={150} mood="cheer" /></div>
+        <div className="dance"><KidAvatar kid={kid} size={150} mood="cheer" /></div>
         <div className="reward-card">
           <div className="reward-total"><span className="reward-emoji">{cur.emoji}</span> +{count}</div>
           <ul className="reward-lines">

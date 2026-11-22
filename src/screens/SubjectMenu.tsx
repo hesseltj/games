@@ -1,13 +1,18 @@
 import { GAMES } from '../core/games';
 import { CURRENCIES, SUBJECT_BY_ID } from '../core/subjects';
-import type { Subject } from '../core/types';
+import type { Kid, Subject } from '../core/types';
+import { gameAvailable } from '../core/skills';
+import { kidGrade } from '../core/useRound';
 import { sfx } from '../audio/sfx';
 import { speak } from '../audio/speech';
 
-export function SubjectMenu({ subject, onPlay, onBack }: { subject: Subject; onPlay: (gameId: string) => void; onBack: () => void }) {
+export function SubjectMenu({ kid, subject, onPlay, onBack }: { kid: Kid; subject: Subject; onPlay: (gameId: string) => void; onBack: () => void }) {
   const info = SUBJECT_BY_ID[subject];
   const currency = CURRENCIES.find((c) => c.id === info.currency)!;
-  const games = GAMES.filter((g) => g.subject === subject);
+  const grade = kidGrade(kid, subject);
+  // Games for older kids are hidden; "coming soon" games show at the end.
+  const games = GAMES.filter((g) => g.subject === subject && (!g.ready || gameAvailable(g.id, subject, grade)))
+    .sort((a, b) => Number(b.ready) - Number(a.ready));
   return (
     <div className="screen subject" style={{ background: `linear-gradient(180deg, ${info.color}33, #fff8e7)` }}>
       <div className="topbar">
