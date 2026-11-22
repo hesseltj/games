@@ -16,7 +16,11 @@ export function SequenceGame({ kid, onFinish, onQuit, kind }: GameProps & { kind
   const round = useRound<SequenceQuestion>({ kid, subject, gameId, onFinish, generate: (skill, step, rng) => (kind === 'sentence' ? sentenceQuestion : orderQuestion)(skill.id, step, rng) });
   const q = round.question;
   const fb = useFeedback(kid);
-  const [placed, setPlaced] = useState<number[]>([]); // pool positions used, in order
+  // Pool positions used, in order. Tied to the question id so a new (shorter) question never
+  // renders with the previous question's picks.
+  const [picks, setPicks] = useState<{ qid: string; placed: number[] }>({ qid: q.id, placed: [] });
+  const placed = picks.qid === q.id ? picks.placed : [];
+  const setPlaced = (pl: number[]) => setPicks({ qid: q.id, placed: pl });
   const [shake, setShake] = useState<number | null>(null);
   const [misses, setMisses] = useState(0);
   const [done, setDone] = useState(false);
@@ -24,7 +28,7 @@ export function SequenceGame({ kid, onFinish, onQuit, kind }: GameProps & { kind
 
   useEffect(() => () => stopSpeaking(), []);
   useEffect(() => {
-    setPlaced([]); setMisses(0); setDone(false); fb.reset(); locked.current = false;
+    setMisses(0); setDone(false); fb.reset(); locked.current = false;
     const t = setTimeout(() => speak(q.say, 'question'), 350);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -12,10 +12,17 @@ const CONFUSE: Record<string, string[]> = {
   ph: ['f', 'p'], f: ['ph', 'v'], gh: ['g', 'f'], ou: ['ow', 'oo'], ee: ['ea', 'ie'], ie: ['ei', 'ee'], ei: ['ie', 'ee'],
   y: ['i', 'e'], r: ['w', 'l'], m: ['n', 'mm'], n: ['m', 'nn'], t: ['d', 'tt'], d: ['t', 'b'], b: ['d', 'p'], p: ['b', 'q'], g: ['j', 'q'], h: ['n', 'w'], w: ['v', 'u'],
 };
-function confusers(rng: Rng, right: string, n: number): string[] {
-  const base = CONFUSE[right] ?? [];
-  const rest = shuffle(rng, (right.length > 1 ? ['ai', 'ee', 'oa', 'ea', 'oo', 'ie', 'ou', 'ck', 'ss', 'll'] : ALPHABET)).filter((x) => x !== right && !base.includes(x));
-  return [...base, ...rest].slice(0, n);
+const REAL_WORDS = new Set([...CVC.map((w) => w.word), ...CHUNK_WORDS.map((w) => w.word), ...BLEND_WORDS.map((w) => w.word),
+  'cot', 'cut', 'big', 'bag', 'bog', 'beg', 'hot', 'hit', 'hut', 'pin', 'pan', 'pun', 'fix', 'six', 'sat', 'set', 'sit', 'net', 'not', 'nut', 'pet', 'pit', 'pot', 'put',
+  'bed', 'bad', 'bid', 'bud', 'mop', 'map', 'top', 'tip', 'tap', 'ten', 'tin', 'tan', 'bat', 'bet', 'bit', 'but', 'cap', 'cop', 'cup', 'hen', 'hem', 'him', 'ham', 'leg', 'log', 'lag', 'lug', 'mug', 'mag', 'rat', 'rot', 'rut', 'van', 'vat', 'web', 'wet', 'wit', 'fan', 'fun', 'fin', 'pig', 'peg', 'dig', 'dog', 'dug', 'bus', 'box', 'fox', 'bug', 'bun', 'sun', 'son', 'hat', 'cat']);
+
+/** Wrong answers: same length as the blank, and never ones that spell a different real word. */
+function confusers(rng: Rng, right: string, n: number, word?: string, at = 0): string[] {
+  const makesWord = (x: string) => !!word && REAL_WORDS.has(word.slice(0, at) + x + word.slice(at + right.length));
+  const base = (CONFUSE[right] ?? []).filter((x) => x.length === right.length);
+  const rest = shuffle(rng, (right.length > 1 ? ['ai', 'ee', 'oa', 'ea', 'oo', 'ie', 'ou', 'ck', 'ss', 'll', 'sh', 'ch', 'th'] : ALPHABET))
+    .filter((x) => x.length === right.length && x !== right && !base.includes(x));
+  return [...base, ...rest].filter((x) => !makesWord(x)).slice(0, n);
 }
 
 function missing(skillId: string, word: string, at: number, len: number, emoji: string, step: number, rng: Rng, sentence?: string) {
@@ -23,7 +30,7 @@ function missing(skillId: string, word: string, at: number, len: number, emoji: 
   const shown = `${word.slice(0, at)}${'_'.repeat(len)}${word.slice(at + len)}`;
   const say = sentence ? `${word}. ${sentence} What is missing from ${word}?` : `${word}. What letter is missing from ${word}?`;
   return question(skillId, step, say, 'Feed the monster the missing letter!', { kind: 'emoji', emoji, label: shown.split('').join(' ') },
-    pickOne(right, confusers(rng, right, choiceCount(step) - 1), txt), rng);
+    pickOne(right, confusers(rng, right, choiceCount(step) - 1, word, at), txt), rng);
 }
 
 /** For longer words, the trickiest spot: a double letter, a vowel team, or a silent/odd letter. */

@@ -17,6 +17,12 @@ let n = 0;
 const range = (k: number) => Array.from({ length: k + 1 }, (_, i) => i);
 const mixed = (whole: number, num: number, den: number) => (num === 0 ? `${whole}` : whole === 0 ? `${num}/${den}` : `${whole} ${num}/${den}`);
 
+/** A random tick that isn't printed on the line (so the kid has to estimate), if there is one. */
+function unlabeled(rng: Rng, shown: boolean[], from = 1): number {
+  const options = shown.map((s, i) => (s || i < from || i === shown.length - 1 ? -1 : i)).filter((i) => i >= 0);
+  return options.length ? pick(rng, options) : randInt(rng, from, shown.length - 2);
+}
+
 export function lineQuestion(skillId: string, step: number, rng: Rng): LineQuestion {
   n += 1;
   const q = (ticks: number, labels: string[], shown: boolean[], target: number, say: string, prompt: string, start?: number): LineQuestion =>
@@ -27,8 +33,9 @@ export function lineQuestion(skillId: string, step: number, rng: Rng): LineQuest
       return q(5, range(5).map(String), range(5).map(() => true), t, `Hop to the number ${t}!`, `Hop to ${t}!`);
     }
     case 'm.k.line': {
-      const t = randInt(rng, 1, 10);
-      return q(10, range(10).map(String), range(10).map((i) => step === 1 || i % 2 === 0), t, `Hop to the number ${t}!`, `Hop to ${t}!`);
+      const shown = range(10).map((i) => step === 1 || i % 2 === 0);
+      const t = step === 1 ? randInt(rng, 1, 10) : unlabeled(rng, shown);
+      return q(10, range(10).map(String), shown, t, `Hop to the number ${t}!`, `Hop to ${t}!`);
     }
     case 'm.1.line': {
       const start = randInt(rng, 0, 12), hop = randInt(rng, 1, 8), back = step >= 2 && rng() < 0.5 && start >= hop;
@@ -39,8 +46,9 @@ export function lineQuestion(skillId: string, step: number, rng: Rng): LineQuest
     case 'm.2.line': {
       const by = step === 1 ? 10 : 5;
       const ticks = 100 / by;
-      const t = randInt(rng, 1, ticks - 1);
-      return q(ticks, range(ticks).map((i) => String(i * by)), range(ticks).map((i) => (i * by) % (step === 3 ? 50 : 20) === 0), t, `Hop to ${t * by}!`, `Hop to ${t * by}!`);
+      const shown = range(ticks).map((i) => (i * by) % (step === 3 ? 50 : 20) === 0);
+      const t = unlabeled(rng, shown);
+      return q(ticks, range(ticks).map((i) => String(i * by)), shown, t, `Hop to ${t * by}!`, `Hop to ${t * by}!`);
     }
     case 'm.3.line': {
       const d = pick(rng, step === 1 ? [2, 4] : [3, 4, 6, 8]);
@@ -49,16 +57,18 @@ export function lineQuestion(skillId: string, step: number, rng: Rng): LineQuest
         `Hop to ${t} over ${d}.`, `Hop to ${t}/${d}!`);
     }
     case 'm.4.line': {
-      const t = randInt(rng, 1, 9);
-      return q(10, range(10).map((i) => (i === 10 ? '1' : i === 0 ? '0' : `0.${i}`)), range(10).map((i) => i === 0 || i === 10 || (step === 1 && i === 5)), t,
+      const shown = range(10).map((i) => i === 0 || i === 10 || (step === 1 && i === 5));
+      const t = unlabeled(rng, shown);
+      return q(10, range(10).map((i) => (i === 10 ? '1' : i === 0 ? '0' : `0.${i}`)), shown, t,
         `Hop to zero point ${t}.`, `Hop to 0.${t}!`);
     }
     default: { // m.5.line: mixed numbers from 0 to 3
       const d = pick(rng, step === 1 ? [2] : [2, 3, 4]);
       const ticks = 3 * d;
-      const t = randInt(rng, 1, ticks - 1);
+      const shown = range(ticks).map((i) => i % d === 0);
+      const t = unlabeled(rng, shown);
       const label = (i: number) => mixed(Math.floor(i / d), i % d, d);
-      return q(ticks, range(ticks).map(label), range(ticks).map((i) => i % d === 0), t, `Hop to ${label(t).replace('/', ' over ')}.`, `Hop to ${label(t)}!`);
+      return q(ticks, range(ticks).map(label), shown, t, `Hop to ${label(t).replace('/', ' over ')}.`, `Hop to ${label(t)}!`);
     }
   }
 }

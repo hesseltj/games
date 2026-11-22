@@ -93,7 +93,7 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
           ))}
         </div>
       </div>
-      <GameBuddy kid={kid} mood={done ? 'cheer' : bad != null ? 'oops' : 'idle'} combo={0} />
+      <GameBuddy kid={kid} mood={done ? 'cheer' : bad != null ? 'oops' : 'idle'} line={done ? 'Puzzle solved!' : bad != null ? 'Try another one!' : null} />
     </div>
   );
 }

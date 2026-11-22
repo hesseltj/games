@@ -56,7 +56,7 @@ export function App() {
 
   const kid = kids.find((k) => k.id === kidId) ?? null;
 
-  // Calm music on the home, shop and house screens; quiet during games so prompts are clear.
+  // A song per screen. Game music is quieter and ducks under the voice (see audio/music.ts).
   useEffect(() => {
     const songs: Partial<Record<Screen['name'], SongId | null>> = {
       play: 'game', reward: null, parents: null, house: 'house', shop: 'shop', wardrobe: 'shop', break: 'calm',

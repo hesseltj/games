@@ -52,7 +52,7 @@ export function TreasureMapGame({ kid, onFinish, onQuit }: GameProps) {
             <RowCells key={r} r={r} q={q} dug={dug} done={done} hint={misses >= 2} onTap={tap} />
           ))}
         </div>
-        {!q.coords && q.size > 3 && <div className="tm-compass">⬆️ {q.skillId.startsWith('ss.k') || q.skillId.startsWith('ss.1') ? 'up' : 'N'}</div>}
+        {q.start !== undefined && <div className="tm-compass">⬆️ {q.skillId.startsWith('ss.k') || q.skillId.startsWith('ss.1') ? 'up' : 'N'}</div>}
       </div>
       <GameBuddy kid={kid} mood={done ? 'cheer' : 'idle'} line={fb.said} />
     </div>

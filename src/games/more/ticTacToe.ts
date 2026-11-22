@@ -41,7 +41,7 @@ export function robotMove(b: Cell[], level: Level, rng: Rng): number {
   if (level === 'silly') return random();
   const win = findLine(b, 'O');
   const block = findLine(b, 'X');
-  if (level === 'sometimes') return (rng() < 0.5 ? block ?? win : null) ?? random();
+  if (level === 'sometimes') return (rng() < 0.5 ? win ?? block : null) ?? random();
   if (level === 'smart') return win ?? block ?? (!b[4] ? 4 : random());
   let best = empty[0], bestScore = -2;
   for (const i of empty) {

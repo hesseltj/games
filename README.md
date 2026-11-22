@@ -8,6 +8,7 @@ to dress up their character and decorate their house.
 - 🎨 [Game design doc](docs/DESIGN.md)
 - 🚀 [Hosting & installing on tablets](docs/HOSTING.md)
 - ☁️ [Turning on cloud backup](docs/CLOUD_SETUP.md)
+- 📲 [Putting the app on the kids' tablets](docs/INSTALL_ON_TABLETS.md)
 
 ## Status
 
@@ -61,6 +62,13 @@ to dress up their character and decorate their house.
   word parts; 6×6 sudoku, bigger robot mazes and memory boards, logic puzzles
 - Seasonal shop items (fall, Halloween, winter, Valentine's, spring, summer) and explorer decor
   bought with Compass Shards
+
+**Polish round:** done.
+- Upbeat generated music with drums and bass, a song per screen, game music that ducks under the voice
+- Livelier voice: best natural voice picked automatically, voice picker for grown-ups, excited praise and
+  streak lines (sometimes using the kid's name) shown in the character's speech bubble
+- 10 more games, for 4–6 per subject: Math Racer, Number Line Hop, Fraction Pizza, Sentence Scramble,
+  Missing Letter Monster, Word Search, Life Cycle Line-Up, Fact or Fib?, Tic-Tac-Toe Challenge, Treasure Map
 
 ## Development
 

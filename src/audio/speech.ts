@@ -84,8 +84,8 @@ export function speak(text: string, mood: Mood = 'normal') {
   u.onend = done;
   u.onerror = done;
   speechSynthesis.speak(u);
-  // Some Android voices never fire onend; un-duck after a generous estimate.
-  setTimeout(done, 1500 + text.length * 90);
+  // Some Android voices never fire onend; un-duck after a generous estimate that accounts for slow speech.
+  setTimeout(done, 2000 + (text.length * 110) / u.rate);
 }
 
 export function stopSpeaking() {

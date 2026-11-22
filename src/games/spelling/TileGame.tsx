@@ -59,9 +59,9 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
       setShake(ti);
       setTimeout(() => setShake(null), 450);
       setMisses((m) => m + 1);
-      const line = tryAgainLine();
+      const line = misses === 0 ? tryAgainLine() : 'Listen carefully!';
       setSaid(line);
-      speak(misses === 0 ? `${line} ${q.word}.` : `Listen: ${q.word}. ${q.slots.join(', ')}.`, 'encourage');
+      speak(misses === 0 ? `${line} ${q.word}.` : `${line} ${q.word}. ${q.slots.join(', ')}.`, 'encourage');
     }
   }
 

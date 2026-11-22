@@ -19,8 +19,9 @@ export function NumberLineGame({ kid, onFinish, onQuit }: GameProps) {
   const [done, setDone] = useState(false);
   const locked = useRef(false);
   const lineRef = useRef<HTMLDivElement>(null);
+  const oopsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => stopSpeaking(), []);
+  useEffect(() => () => { stopSpeaking(); if (oopsTimer.current) clearTimeout(oopsTimer.current); }, []);
   useEffect(() => {
     setFrog(q.start ?? 0); setMisses(0); setDone(false); setWrong(null); fb.reset(); locked.current = false;
     const t = setTimeout(() => speak(q.say, 'question'), 350);
@@ -37,6 +38,7 @@ export function NumberLineGame({ kid, onFinish, onQuit }: GameProps) {
 
   function choose(i: number) {
     if (locked.current) return;
+    if (oopsTimer.current) { clearTimeout(oopsTimer.current); oopsTimer.current = null; }
     setFrog(i);
     sfx.whoosh();
     if (i === q.target) {
@@ -47,7 +49,12 @@ export function NumberLineGame({ kid, onFinish, onQuit }: GameProps) {
     } else {
       setWrong(i);
       setMisses((m) => m + 1);
-      setTimeout(() => { fb.oops(`That’s ${q.labels[i]}. ${q.say}`); setFrog(q.start ?? 0); }, 450);
+      oopsTimer.current = setTimeout(() => {
+        oopsTimer.current = null;
+        if (locked.current) return;
+        fb.oops(`That’s ${q.labels[i]}. ${q.say}`);
+        setFrog(q.start ?? 0);
+      }, 450);
     }
   }
 

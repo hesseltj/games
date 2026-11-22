@@ -203,9 +203,9 @@ function VoicePicker() {
   const [chosen, setChosen] = useState(() => currentVoiceURI());
   useEffect(() => {
     const update = () => { setVoices(englishVoices()); setChosen(currentVoiceURI()); };
-    speechSynthesis?.addEventListener?.('voiceschanged', update);
+    window.speechSynthesis?.addEventListener?.('voiceschanged', update);
     const t = setTimeout(update, 500);
-    return () => { clearTimeout(t); speechSynthesis?.removeEventListener?.('voiceschanged', update); };
+    return () => { clearTimeout(t); window.speechSynthesis?.removeEventListener?.('voiceschanged', update); };
   }, []);
   if (voices.length === 0) return <p className="hint">This device has no English voices installed. On Android, install “Speech Services by Google” from the Play Store.</p>;
   return (

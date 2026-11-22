@@ -315,3 +315,22 @@ describe('new games', () => {
     }
   });
 });
+
+describe('review fixes', () => {
+  it('number line targets are not already printed (grades 2, 4, 5)', () => {
+    const rng = seeded(31);
+    for (const id of ['m.2.line', 'm.4.line', 'm.5.line']) for (let step = 1; step <= 3; step++) for (let i = 0; i < 200; i++) {
+      const q = lineQuestion(id, step, rng);
+      expect(q.shown[q.target], `${id} ${q.labels[q.target]}`).toBe(false);
+    }
+  });
+  it('Missing Letter choices are the same length as the blank and never spell another word', () => {
+    const rng = seeded(32);
+    const gens = CHOICE.missingLetter;
+    for (const id of Object.keys(gens)) for (let step = 1; step <= 3; step++) for (let i = 0; i < 200; i++) {
+      const q = gens[id]({ rng, step, objects, kidName: 'A' });
+      const right = (q.options.find((o) => o.correct)!.content as { text: string }).text;
+      for (const o of q.options) expect((o.content as { text: string }).text.length, q.say).toBe(right.length);
+    }
+  });
+});

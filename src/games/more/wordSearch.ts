@@ -65,7 +65,7 @@ export function searchPuzzle(skillId: string, step: number, rng: Rng): SearchPuz
     }
     if (!ok) continue;
     const filled = grid.map((c) => c ?? pick(rng, LETTERS));
-    // Make sure no word accidentally appears twice (so any find is the find).
+    // A word could also appear by chance in the random letters; matchWord accepts any copy.
     return { id: `w${n}`, skillId, step, size: spec.size, grid: filled, words: placed, say: `Find these words: ${placed.map((p) => p.word.toLowerCase()).join(', ')}. Tap the first letter, then the last letter.`, prompt: 'Find the words!' };
   }
   throw new Error('could not build word search');
