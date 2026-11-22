@@ -92,15 +92,15 @@ export const ITEMS: CatalogItem[] = [
   t('af_toy_ark', 'Animal ark playset', 'animals', '⛵', 150, { badge: '🦒', size: 1 }),
 
   // ---- 🍡 Squishy Squad ----
-  f('sq_chair_bean', 'Squishy beanbag', 'squishy', '🫘', 90, { badge: '💗', size: 1.1 }),
+  f('sq_chair_bean', 'Squishy beanbag', 'squishy', '🛋️', 90, { badge: '💗', size: 1.1 }),
   f('sq_lamp_cloud', 'Cloud lamp', 'squishy', '☁️', 40, { layer: 'wall', badge: '✨' }),
   c('sq_hat_bun', 'Bun-shaped beanie', 'squishy', '🍡', 30, { hat: { kind: 'beanie', color: '#f9c6dd', color2: '#fff4b8' } }),
   c('sq_outfit_pastel', 'Pastel hoodie set', 'squishy', '🧁', 90, { outfit: { shirt: '#c7b8ff', emblem: '🧁', legs: '#ffc7e0' } }),
   p('sq_pet_mochi', 'Mochi blob buddy', 'squishy', '🍙', 80),
   p('sq_pet_cat', 'Squishy cloud cat', 'squishy', '😺', 220, { badge: '☁️' }),
   o('sq_yard_flowers', 'Marshmallow flower bed', 'squishy', '🌸', 50, { size: 0.9 }),
-  o('sq_yard_pool', 'Jelly kiddie pool', 'squishy', '🫧', 200, { size: 1.8, badge: '🍮' }),
-  t('sq_toy_squishies', 'Squishy collection jar', 'squishy', '🫙', 30, { badge: '🍡' }),
+  o('sq_yard_pool', 'Jelly kiddie pool', 'squishy', '🌊', 200, { size: 1.8, badge: '🍮' }),
+  t('sq_toy_squishies', 'Squishy collection jar', 'squishy', '🍯', 30, { badge: '🍡' }),
   t('sq_toy_machine', 'Squishy capsule machine', 'squishy', '🎰', 180, { size: 1.2, badge: '🍬' }),
 
   // ---- 🎀 Dollhouse Dreams ----

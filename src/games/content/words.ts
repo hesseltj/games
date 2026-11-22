@@ -11,7 +11,7 @@ export const CVC: PicWord[] = [
   { word: 'net', emoji: '🥅' }, { word: 'pen', emoji: '🖊️' }, { word: 'map', emoji: '🗺️' }, { word: 'bat', emoji: '🦇' },
   { word: 'rat', emoji: '🐀' }, { word: 'log', emoji: '🪵' }, { word: 'web', emoji: '🕸️' }, { word: 'van', emoji: '🚐' },
   { word: 'cap', emoji: '🧢' }, { word: 'pot', emoji: '🍲' }, { word: 'leg', emoji: '🦵' }, { word: 'bag', emoji: '👜' },
-  { word: 'mug', emoji: '☕' }, { word: 'kid', emoji: '🧒' }, { word: 'six', emoji: '6️⃣' }, { word: 'ten', emoji: '🔟' },
+  { word: 'mug', emoji: '☕' }, { word: 'six', emoji: '6️⃣' }, { word: 'ten', emoji: '🔟' },
 ];
 
 /** Grade 2 words split into sound chunks (digraphs, blends, vowel teams, silent e). */

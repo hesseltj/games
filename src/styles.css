@@ -476,7 +476,7 @@ input { font-family: inherit; }
 .story p { margin: 4px 0; font-family: system-ui, sans-serif; }
 .story-q { margin-top: 6px; }
 .skin-story .opt { min-height: 72px !important; min-width: min(300px, 42vw); }
-.skin-story .opt .bf-text { font-size: 22px; }
+.skin-story .opt .bf-text { font-size: 26px; }
 .skin-story .choices { gap: 14px; }
 
 /* ---- Tile games ---- */
