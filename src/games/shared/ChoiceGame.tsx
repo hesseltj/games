@@ -8,6 +8,7 @@ import { sfx } from '../../audio/sfx';
 import { Shape } from '../../ui/Shape';
 import type { ChoiceOption, ChoiceQuestion, Display, OptContent } from './types';
 import { GameTopBar } from './GameTopBar';
+import { GameBuddy, comboOf } from './GameBuddy';
 
 export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story';
 
@@ -62,7 +63,9 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
       sfx.pop();
       setTimeout(() => sfx.correct(), 120);
       setPicked(o.id);
-      speak(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+      const combo = misses === 0 ? comboOf(round.results) + 1 : 0;
+      if (combo >= 3) { setTimeout(() => sfx.combo(), 350); speak(`${combo} in a row!`); }
+      else speak(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
       setTimeout(() => round.submit(misses === 0), 1100);
       return;
     }
@@ -107,6 +110,7 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
         ))}
       </div>
       {picked && <div className="cheer-pop">⭐</div>}
+      <GameBuddy kid={kid} mood={picked ? 'cheer' : wobble ? 'oops' : 'idle'} combo={misses === 0 ? comboOf(round.results) + 1 : 0} />
     </div>
   );
 }

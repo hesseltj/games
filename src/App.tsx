@@ -12,6 +12,9 @@ import { Shop } from './screens/Shop';
 import { House } from './screens/House';
 import { Wardrobe } from './screens/Wardrobe';
 import { Parents } from './screens/Parents';
+import { Badges } from './screens/Badges';
+import { Creatures } from './screens/Creatures';
+import { setMusicWanted } from './audio/music';
 
 type Screen =
   | { name: 'profiles' }
@@ -21,6 +24,8 @@ type Screen =
   | { name: 'shop' }
   | { name: 'house' }
   | { name: 'wardrobe' }
+  | { name: 'badges' }
+  | { name: 'creatures' }
   | { name: 'subject'; subject: Subject }
   | { name: 'play'; subject: Subject; gameId: string; key: number }
   | { name: 'reward'; subject: Subject; gameId: string; summary: RoundSummary };
@@ -46,6 +51,13 @@ export function App() {
   }, []);
 
   const kid = kids.find((k) => k.id === kidId) ?? null;
+
+  // Calm music on the home, shop and house screens; quiet during games so prompts are clear.
+  useEffect(() => {
+    setMusicWanted(!['play', 'reward', 'parents'].includes(screen.name));
+    // Each screen starts at the top (phones keep the old scroll position otherwise).
+    window.scrollTo(0, 0);
+  }, [screen.name]);
 
   function pickKid(id: string) {
     setKidId(id);
@@ -75,6 +87,10 @@ export function App() {
       return <Shop kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
     case 'house':
       return <House kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
+    case 'badges':
+      return <Badges kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
+    case 'creatures':
+      return <Creatures kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
     case 'wardrobe':
       return <Wardrobe kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
     case 'subject':

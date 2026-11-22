@@ -2,8 +2,8 @@ import type { CatalogItem } from '../shop/catalog';
 import { Creature } from './Creature';
 
 /** Draws a catalog item at a given pixel size (used in the shop, wardrobe and house). */
-export function ItemArt({ item, size = 64 }: { item: CatalogItem; size?: number }) {
-  if (item.creature) return <Creature kind={item.creature} size={size} />;
+export function ItemArt({ item, size = 64, stage = 1 }: { item: CatalogItem; size?: number; stage?: 1 | 2 | 3 }) {
+  if (item.creature) return <Creature kind={item.creature} size={size} stage={stage} />;
   if (item.rug) {
     return (
       <svg viewBox="0 0 100 40" width={size} height={size * 0.4} aria-label={item.name}>

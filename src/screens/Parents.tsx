@@ -4,6 +4,7 @@ import { signIn, signOut, signUp, syncNow } from '../data/syncManager';
 import { GRADES, GRADE_LABEL, type Grade } from '../core/types';
 import { Avatar } from '../ui/Avatar';
 import { sfx } from '../audio/sfx';
+import { setAudioSetting, useAudioSetting } from '../audio/settings';
 
 export function Parents({ onDone }: { onDone: () => void }) {
   const [unlocked, setUnlocked] = useState(false);
@@ -81,6 +82,7 @@ function ParentPanel() {
         ))}
         <p className="hint">Games still adjust up and down on their own; the grade is where they start.</p>
       </section>
+      <SoundSettings />
     </div>
   );
 }
@@ -136,5 +138,18 @@ function SignInForm() {
         <button className="small-btn alt" disabled={busy || !email || password.length < 6} onClick={() => go('up')}>Create family account</button>
       </div>
     </>
+  );
+}
+
+function SoundSettings() {
+  const music = useAudioSetting('music');
+  const sounds = useAudioSetting('sounds');
+  return (
+    <section className="card">
+      <h3>🔊 Sound on this device</h3>
+      <label className="toggle"><input type="checkbox" checked={music} onChange={(e) => setAudioSetting('music', e.target.checked)} /> Background music</label>
+      <label className="toggle"><input type="checkbox" checked={sounds} onChange={(e) => setAudioSetting('sounds', e.target.checked)} /> Sound effects</label>
+      <p className="hint">Spoken instructions always stay on, since younger kids need them to play. Use the tablet’s volume buttons to make them quieter.</p>
+    </section>
   );
 }

@@ -3,6 +3,7 @@ import { useRound } from '../../core/useRound';
 import { speak, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
+import { GameBuddy } from '../shared/GameBuddy';
 import type { GameProps } from '../shared/ChoiceGame';
 import { ARROW, isNeighbor, key, makePuzzle, runProgram, type Dir, type Pos, type Puzzle } from './robot';
 
@@ -82,6 +83,7 @@ export function RobotGame({ kid, onFinish, onQuit }: GameProps) {
     <div className="screen robot-game">
       <GameTopBar total={round.total} index={round.index} results={round.results} onQuit={onQuit}
         onSpeak={() => speak(p.mode === 'tap' ? 'Tap a square next to the robot to move it to the battery.' : 'Use the arrows to plan the moves, then press Go.')} />
+      <GameBuddy kid={kid} mood={won ? 'cheer' : bump ? 'oops' : 'idle'} combo={0} />
       <div className="robot-body">
         <div className="robot-grid" style={{ ['--n' as string]: p.size }}>
           {Array.from({ length: p.size * p.size }, (_, i) => {

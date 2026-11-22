@@ -4,6 +4,7 @@ import type { Kid, Placement, Room } from '../core/types';
 import { BACKDROP_BY_ID, ITEM_BY_ID, ROOMS, ROOM_BY_TYPE, placeable, type CatalogItem, type RoomType } from '../shop/catalog';
 import { defaultRoom, equip, isRoomUnlocked, roomId } from '../shop/actions';
 import { ItemArt } from '../ui/ItemArt';
+import { InvArt } from '../ui/InvArt';
 import { sfx } from '../audio/sfx';
 
 const UNIT = 0.14; // item size as a share of room width
@@ -130,7 +131,7 @@ export function House({ kid, onBack, onShop }: { kid: Kid; onBack: () => void; o
                 style={{ left: `${p.x}%`, top: `${p.y}%`, transform: `translate(-50%, -100%) scaleX(${p.flip ? -1 : 1})` }}
                 onPointerDown={(e) => onPointerDown(e, p)} onPointerMove={(e) => onPointerMove(e, p)}
                 onPointerUp={() => onPointerUp(p)} onPointerCancel={() => onPointerUp(p)}>
-                <span className={isPet ? 'hop' : ''} style={{ display: 'inline-flex' }}><ItemArt item={item} size={px} /></span>
+                <span className={isPet ? 'hop' : ''} style={{ display: 'inline-flex' }}><InvArt invId={p.inv} item={item} size={px} /></span>
               </div>
             );
           })}

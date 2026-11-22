@@ -96,7 +96,7 @@ export function useRound<Q>(opts: {
     await addLedger([{ id: uid(), kidId: kid.id, currency, amount: earned, reason: `round:${gameId}`, refId: roundId, createdAt: now }]);
     await addRound({
       id: roundId, kidId: kid.id, gameId, subject, skills: [...usedSkills.current], correctFirstTry: correct, total,
-      durationSec: Math.round((now - startedAt.current) / 1000), earned, createdAt: now,
+      durationSec: Math.round((now - startedAt.current) / 1000), earned, buddy: kid.equipped?.buddy ?? null, createdAt: now,
     });
     optsRef.current.onFinish({ gameId, subject, currency, lines, earned, correctFirstTry: correct, total });
   }, [current, done, gameId, kid.id, makeQuestion, subject, total]);
