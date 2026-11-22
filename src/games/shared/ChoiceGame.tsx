@@ -162,7 +162,7 @@ export function OptionFace({ c }: { c: OptContent }) {
 function DisplayView({ d }: { d: Display }) {
   switch (d.kind) {
     case 'none': return null;
-    case 'text': return <div className="np-display-text">{d.text}</div>;
+    case 'text': return <div className={`np-display-text ${d.text.length > 60 ? 'longer' : d.text.length > 24 ? 'long' : ''}`}>{d.text}</div>;
     case 'emoji':
       return (
         <div className="np-display-emoji">

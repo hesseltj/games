@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { dailyDealItemId, discounted, goalProgress, planPurchase, shortfall, starterInventory } from './logic';
-import { BACKDROPS, ITEMS, ITEM_BY_ID, ROOMS } from './catalog';
+import { BACKDROPS, ITEMS, ITEM_BY_ID, ROOMS, SEASONAL_ITEMS, SEASONS, seasonsOn } from './catalog';
 import { balances, emptyWallet } from '../core/economy';
 import { THEMES } from '../core/themes';
 import type { Kid } from '../core/types';
@@ -88,5 +88,28 @@ describe('starter set', () => {
     const b = starterInventory(kid, 2).map((i) => i.id);
     expect(a).toEqual(b);
     expect(a).toContain('kid1:starter:sp_hat_cap');
+  });
+});
+
+describe('seasons', () => {
+  it('knows which seasons are on', () => {
+    const on = (m: number, d: number) => seasonsOn(new Date(2026, m - 1, d)).map((s) => s.id).sort();
+    expect(on(10, 15)).toEqual(['fall', 'halloween']);
+    expect(on(11, 22)).toEqual(['fall']);
+    expect(on(12, 25)).toEqual(['winter']);
+    expect(on(1, 10)).toEqual(['winter']); // wraps around the new year
+    expect(on(2, 14)).toEqual(['valentine']);
+    expect(on(7, 4)).toEqual(['summer']);
+  });
+  it('every season has at least 4 things to buy, including clothes', () => {
+    for (const s of SEASONS) {
+      const items = SEASONAL_ITEMS.filter((i) => i.season === s.id);
+      expect(items.length, s.id).toBeGreaterThanOrEqual(4);
+      expect(items.some((i) => i.category === 'clothes'), s.id).toBe(true);
+    }
+  });
+  it('Compass Shards have things to buy', () => {
+    expect(ITEMS.filter((i) => i.price.shards).length).toBeGreaterThanOrEqual(8);
+    expect(BACKDROPS.filter((b) => b.price.shards).length).toBeGreaterThanOrEqual(3);
   });
 });

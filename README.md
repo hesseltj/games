@@ -1,8 +1,8 @@
 # Brainy Town (working title)
 
 Learning games for kids, Pre-K through 5th grade, in one installable app for tablets and phones.
-Kids play short games in five subjects, earn a different currency for each, and (soon) spend it
-in a shop to dress up their character and decorate their house.
+Kids play short games in six subjects, earn a different currency for each, and spend it in a shop
+to dress up their character and decorate their house.
 
 - 📋 [Project plan](docs/PLAN.md)
 - 🎨 [Game design doc](docs/DESIGN.md)
@@ -52,6 +52,15 @@ in a shop to dress up their character and decorate their house.
 - Accessibility: bigger text, slower voice, less motion, stronger contrast
 - Checked on 9 screen sizes (Android tablets both ways, Fire HD 10, iPad, iPhone SE/14, Pixel 7)
   and on a slowed-down CPU
+
+**Phase 6 (grow with them):** done.
+- Content for every grade from Pre-K through 5th in all subjects
+- New subject: **World** 🌎 (social studies), earning 🧭 Compass Shards: Helpers & Me, Map Explorer,
+  Time Travelers
+- Story Spot has stories for grades 1–5; Word Builder grows from blends to syllables to Greek and Latin
+  word parts; 6×6 sudoku, bigger robot mazes and memory boards, logic puzzles
+- Seasonal shop items (fall, Halloween, winter, Valentine's, spring, summer) and explorer decor
+  bought with Compass Shards
 
 ## Development
 
