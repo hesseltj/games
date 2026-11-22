@@ -30,6 +30,10 @@ export interface Kid {
   starterGranted?: boolean;
   /** Badges the kid has already been shown, so new ones can be celebrated. */
   seenBadges?: string[];
+  /** Soft daily play limit in minutes (null/undefined = no limit). */
+  dailyLimitMin?: number | null;
+  /** Extra minutes a grown-up allowed for one day. */
+  limitBonus?: { day: string; minutes: number } | null;
   createdAt: number;
   updatedAt: number;
 }

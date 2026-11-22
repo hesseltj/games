@@ -15,6 +15,8 @@ import { Parents } from './screens/Parents';
 import { Badges } from './screens/Badges';
 import { Creatures } from './screens/Creatures';
 import { setMusicWanted } from './audio/music';
+import { BreakTime } from './screens/BreakTime';
+import { minutesLeft } from './core/report';
 
 type Screen =
   | { name: 'profiles' }
@@ -25,6 +27,7 @@ type Screen =
   | { name: 'house' }
   | { name: 'wardrobe' }
   | { name: 'badges' }
+  | { name: 'break' }
   | { name: 'creatures' }
   | { name: 'subject'; subject: Subject }
   | { name: 'play'; subject: Subject; gameId: string; key: number }
@@ -35,6 +38,7 @@ const LAST_KID = 'brainy.lastKid';
 export function App() {
   const loaded = useStore((s) => s.loaded);
   const kids = useStore((s) => s.kids);
+  const rounds = useStore((s) => s.rounds);
   const [kidId, setKidId] = useState<string | null>(null);
   const [screen, setScreen] = useState<Screen>({ name: 'profiles' });
 
@@ -79,14 +83,19 @@ export function App() {
     return <Profiles onPick={pickKid} onAdd={() => setScreen({ name: 'newKid' })} onParents={() => setScreen({ name: 'parents' })} />;
   }
 
+  // Soft daily limit: the current round always finishes; new rounds wait until tomorrow.
+  const timeUp = minutesLeft(kid, rounds) === 0;
+
   switch (screen.name) {
     case 'hub':
-      return <Hub kid={kid} onSubject={(subject) => setScreen({ name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })}
+      return <Hub kid={kid} onSubject={(subject) => setScreen(timeUp ? { name: 'break' } : { name: 'subject', subject })} onSwitch={() => setScreen({ name: 'profiles' })}
         onGo={(t) => setScreen({ name: t } as Screen)} />;
     case 'shop':
       return <Shop kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
     case 'house':
       return <House kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
+    case 'break':
+      return <BreakTime kid={kid} onHome={() => setScreen({ name: 'hub' })} onHouse={() => setScreen({ name: 'house' })} />;
     case 'badges':
       return <Badges kid={kid} onBack={() => setScreen({ name: 'hub' })} />;
     case 'creatures':
@@ -95,7 +104,7 @@ export function App() {
       return <Wardrobe kid={kid} onBack={() => setScreen({ name: 'hub' })} onShop={() => setScreen({ name: 'shop' })} />;
     case 'subject':
       return <SubjectMenu kid={kid} subject={screen.subject} onBack={() => setScreen({ name: 'hub' })}
-        onPlay={(gameId) => setScreen({ name: 'play', subject: screen.subject, gameId, key: Date.now() })} />;
+        onPlay={(gameId) => setScreen(timeUp ? { name: 'break' } : { name: 'play', subject: screen.subject, gameId, key: Date.now() })} />;
     case 'play': {
       const Game = GAME_COMPONENTS[screen.gameId];
       return <Game key={screen.key} kid={kid}
@@ -103,8 +112,8 @@ export function App() {
         onFinish={(summary) => setScreen({ name: 'reward', subject: screen.subject, gameId: screen.gameId, summary })} />;
     }
     case 'reward':
-      return <Reward kid={kid} summary={screen.summary}
-        onAgain={() => setScreen({ name: 'play', subject: screen.subject, gameId: screen.gameId, key: Date.now() })}
+      return <Reward kid={kid} summary={screen.summary} timeUp={timeUp}
+        onAgain={() => setScreen(timeUp ? { name: 'break' } : { name: 'play', subject: screen.subject, gameId: screen.gameId, key: Date.now() })}
         onHome={() => setScreen({ name: 'hub' })} />;
   }
 }

@@ -41,6 +41,18 @@ in a shop to dress up their character and decorate their house.
 - Background music, more sounds, the kid's character cheering in games, "3 in a row!" combos
 - Rooms now unlock for 300 coins plus 75 of another currency
 
+**Phase 5 (progress report & polish):** done.
+- Every game finished: Bake Shop (coins, clocks, rulers, orders) and Picture Sudoku join, and
+  shape-building is in Pattern Train. Every skill in the skill map has a game.
+- Grown-ups → 📊 Progress report: level, streak, time played, "needs a little help", charts for
+  minutes per day, rounds per week and first-try accuracy, and a skill-by-skill table per subject
+  with a starting grade you can set per subject
+- Soft daily play-time limit per kid (the round in progress finishes; house and shop stay open),
+  plus "+15 min today"
+- Accessibility: bigger text, slower voice, less motion, stronger contrast
+- Checked on 9 screen sizes (Android tablets both ways, Fire HD 10, iPad, iPhone SE/14, Pixel 7)
+  and on a slowed-down CPU
+
 ## Development
 
 ```bash

@@ -85,7 +85,7 @@ export function RobotGame({ kid, onFinish, onQuit }: GameProps) {
         onSpeak={() => speak(p.mode === 'tap' ? 'Tap a square next to the robot to move it to the battery.' : 'Use the arrows to plan the moves, then press Go.')} />
       <GameBuddy kid={kid} mood={won ? 'cheer' : bump ? 'oops' : 'idle'} combo={0} />
       <div className="robot-body">
-        <div className="robot-grid" style={{ ['--n' as string]: p.size }}>
+        <div className={`robot-grid ${p.mode === 'program' ? 'prog' : ''}`} style={{ ['--n' as string]: p.size }}>
           {Array.from({ length: p.size * p.size }, (_, i) => {
             const c = { x: i % p.size, y: Math.floor(i / p.size) };
             const k = key(c);

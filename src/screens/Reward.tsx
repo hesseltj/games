@@ -13,7 +13,7 @@ import { Gifts } from './Gifts';
 import { sfx } from '../audio/sfx';
 import { speak } from '../audio/speech';
 
-export function Reward({ kid, summary, onAgain, onHome }: { kid: Kid; summary: RoundSummary; onAgain: () => void; onHome: () => void }) {
+export function Reward({ kid, summary, onAgain, onHome, timeUp }: { kid: Kid; summary: RoundSummary; onAgain: () => void; onHome: () => void; timeUp?: boolean }) {
   const cur = CURRENCIES.find((c) => c.id === summary.currency)!;
   const progress = useKidProgress(kid);
   const inventory = useStore((s) => s.inventory);
@@ -102,7 +102,8 @@ export function Reward({ kid, summary, onAgain, onHome }: { kid: Kid; summary: R
         {pending.length > 0 && allIn && (
           <button className="big-btn gift wiggle" onClick={() => { sfx.shake(); setGifts(true); }}>🎁 Open {pending.length === 1 ? 'present' : `${pending.length} presents`}!</button>
         )}
-        <button className="big-btn" onClick={() => { sfx.tap(); onAgain(); }}>Play again 🔁</button>
+        {timeUp ? <div className="extra big">🌙 That’s all the play time for today. Great job!</div>
+          : <button className="big-btn" onClick={() => { sfx.tap(); onAgain(); }}>Play again 🔁</button>}
         <button className="big-btn alt" onClick={() => { sfx.tap(); onHome(); }}>Home 🏠</button>
       </div>
       {gifts && <Gifts kid={kid} pending={pending} onClose={() => setGifts(false)} />}

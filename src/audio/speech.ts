@@ -20,6 +20,8 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   speechSynthesis.addEventListener?.('voiceschanged', chooseVoice);
 }
 
+import { getA11y } from '../ui/a11y';
+
 let rate = 0.95;
 export function setSpeechRate(r: number) {
   rate = r;
@@ -32,7 +34,7 @@ export function speak(text: string) {
   const u = new SpeechSynthesisUtterance(text);
   if (voice) u.voice = voice;
   u.lang = voice?.lang ?? 'en-US';
-  u.rate = rate;
+  u.rate = rate * (getA11y('slowVoice') ? 0.8 : 1);
   u.pitch = 1.1;
   speechSynthesis.speak(u);
 }
