@@ -13,6 +13,10 @@ export function Shape({ shape, size = 64, color = '#ff8a5b' }: { shape: ShapeNam
     case 'oval': el = <ellipse {...p} cx="50" cy="50" rx="44" ry="28" />; break;
     case 'diamond': el = <path {...p} d="M50 8 L86 50 L50 92 L14 50 Z" />; break;
     case 'heart': el = <path {...p} d="M50 86 C10 60 8 30 28 22 C40 17 48 26 50 32 C52 26 60 17 72 22 C92 30 90 60 50 86 Z" />; break;
+    case 'rtriangle': el = <path {...p} d="M14 14 L86 86 L14 86 Z" />; break;
+    case 'semicircle': el = <path {...p} d="M8 70 A42 42 0 0 1 92 70 Z" />; break;
+    case 'hexagon': el = <path {...p} d="M28 12 L72 12 L94 50 L72 88 L28 88 L6 50 Z" />; break;
+    case 'trapezoid': el = <path {...p} d="M28 26 L72 26 L94 76 L6 76 Z" />; break;
     case 'star': el = <path {...p} d="M50 8 L61 37 L92 38 L67 57 L76 88 L50 70 L24 88 L33 57 L8 38 L39 37 Z" />; break;
   }
   return <svg viewBox="0 0 100 100" width={size} height={size} aria-label={shape}>{el}</svg>;

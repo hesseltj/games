@@ -1,6 +1,6 @@
 import type { Rng } from '../../core/random';
 
-export type ShapeName = 'circle' | 'square' | 'triangle' | 'rectangle' | 'star' | 'heart' | 'oval' | 'diamond';
+export type ShapeName = 'circle' | 'square' | 'triangle' | 'rectangle' | 'star' | 'heart' | 'oval' | 'diamond' | 'rtriangle' | 'semicircle' | 'hexagon' | 'trapezoid';
 
 /** What's drawn inside an answer choice. */
 export type OptContent =
@@ -9,7 +9,8 @@ export type OptContent =
   | { kind: 'color'; name: string; hex: string }
   | { kind: 'shape'; shape: ShapeName }
   | { kind: 'emoji'; emoji: string; label?: string }
-  | { kind: 'group'; emoji: string; count: number };
+  | { kind: 'group'; emoji: string; count: number }
+  | { kind: 'coins'; coins: number[] };
 
 export interface ChoiceOption {
   id: string;
@@ -26,7 +27,11 @@ export type Display =
   | { kind: 'tenFrame'; filled: number }
   | { kind: 'emoji'; emoji: string; label?: string }
   | { kind: 'pattern'; items: OptContent[] }
-  | { kind: 'story'; title: string; emoji: string; lines: string[] };
+  | { kind: 'story'; title: string; emoji: string; lines: string[] }
+  | { kind: 'coins'; coins: number[] }
+  | { kind: 'clock'; h: number; m: number }
+  | { kind: 'ruler'; start: number; length: number; emoji: string }
+  | { kind: 'order'; emoji: string; text: string };
 
 export interface ChoiceQuestion {
   id: string;

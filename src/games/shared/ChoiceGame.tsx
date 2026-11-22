@@ -6,11 +6,12 @@ import type { Rng } from '../../core/random';
 import { speak, setSpeechRate, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { Shape } from '../../ui/Shape';
+import { Clock, CoinRow, Ruler } from '../../ui/MathArt';
 import type { ChoiceOption, ChoiceQuestion, Display, OptContent } from './types';
 import { GameTopBar } from './GameTopBar';
 import { GameBuddy, comboOf } from './GameBuddy';
 
-export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story';
+export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story' | 'bakery';
 
 const TINTS = ['#ffd6e7', '#d6ecff', '#e2ffd6', '#fff1c2', '#eadcff', '#ffe0cc'];
 const PRAISE = ['Great job!', 'You got it!', 'Awesome!', 'Yes!', 'Super!', 'Way to go!', 'Nice!'];
@@ -123,6 +124,7 @@ export function labelFor(c: OptContent): string {
     case 'shape': return c.shape;
     case 'emoji': return c.label ?? c.emoji;
     case 'group': return `${c.count}`;
+    case 'coins': return `${c.coins.reduce((a, b) => a + b, 0)} cents`;
   }
 }
 
@@ -147,6 +149,8 @@ export function OptionFace({ c }: { c: OptContent }) {
       );
     case 'group':
       return <span className={`bf-group c${Math.min(c.count, 8)}`}>{Array.from({ length: c.count }, (_, i) => <span key={i}>{c.emoji}</span>)}</span>;
+    case 'coins':
+      return <CoinRow coins={c.coins} size={c.coins.length === 1 ? 2.6 : c.coins.length > 3 ? 1 : 1.4} />;
   }
 }
 
@@ -185,6 +189,19 @@ function DisplayView({ d }: { d: Display }) {
           <span className="train-engine">🚂</span>
           {d.items.map((c, i) => <span key={i} className="train-car"><OptionFace c={c} /></span>)}
           <span className="train-car mystery">?</span>
+        </div>
+      );
+    case 'coins':
+      return <div className="np-display-box"><CoinRow coins={d.coins} size={1.5} /></div>;
+    case 'clock':
+      return <div className="np-display-box"><Clock h={d.h} m={d.m} size={210} /></div>;
+    case 'ruler':
+      return <div className="np-display-box wide"><Ruler start={d.start} length={d.length} emoji={d.emoji} /></div>;
+    case 'order':
+      return (
+        <div className="order-ticket">
+          <span className="order-customer">{d.emoji}</span>
+          <span className="order-text">{d.text}</span>
         </div>
       );
     case 'story':

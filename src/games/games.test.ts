@@ -8,6 +8,8 @@ import { LETTER_LAGOON } from './reading/letterLagoon';
 import { PICTURE_WORDS } from './spelling/pictureWords';
 import { SCIENCE_SAFARI, SORT_IT } from './science/scienceGames';
 import { PATTERN_TRAIN } from './logic/patternTrain';
+import { BAKE_SHOP } from './math/bakeShop';
+import { makeSudoku, countSolutions, isValid } from './logic/sudoku';
 import { makeStoryGenerator } from './reading/storySpot';
 import { STORIES } from './content/stories';
 import { tileQuestion } from './spelling/tiles';
@@ -17,9 +19,9 @@ import { makePuzzle, runProgram, shortestPath, key, DIRS, type Dir } from './log
 
 const CHOICE: Record<string, Record<string, ChoiceGen>> = {
   numberPop: NUMBER_POP, letterLagoon: LETTER_LAGOON, pictureWords: PICTURE_WORDS,
-  scienceSafari: SCIENCE_SAFARI, sortIt: SORT_IT, patternTrain: PATTERN_TRAIN,
+  scienceSafari: SCIENCE_SAFARI, sortIt: SORT_IT, patternTrain: PATTERN_TRAIN, bakeShop: BAKE_SHOP,
 };
-const OTHER_GAMES = new Set(['storySpot', 'wordBuilder', 'spellingBee', 'memoryFlip', 'robotPath']);
+const OTHER_GAMES = new Set(['storySpot', 'wordBuilder', 'spellingBee', 'memoryFlip', 'robotPath', 'pictureSudoku']);
 const objects = ['🐶', '🐱', '🐰', '🐻', '🐸', '🐥'];
 
 describe('every playable skill has content', () => {
@@ -31,6 +33,12 @@ describe('every playable skill has content', () => {
       });
     }
   }
+  it('every skill can be played in at least one game', () => {
+    for (const s of SKILLS) expect(s.games.length, s.id).toBeGreaterThan(0);
+  });
+  it('no game is left "coming soon"', () => {
+    expect(GAMES.filter((g) => !g.ready).map((g) => g.id)).toEqual([]);
+  });
   it('every ready game has at least one skill', () => {
     for (const g of GAMES.filter((g) => g.ready)) expect(SKILLS.some((s) => s.games.includes(g.id)), g.id).toBe(true);
   });
@@ -140,5 +148,54 @@ describe('Robot Path', () => {
   it('bumping a wall stops the robot', () => {
     const p = { ...makePuzzle('l.2.robot', 1, seeded(1)), size: 3, walls: new Set(['1,0']), start: { x: 0, y: 0 }, goal: { x: 2, y: 0 } };
     expect(runProgram(p, ['right', 'right'])).toMatchObject({ bumped: true, reached: false });
+  });
+});
+
+describe('Picture Sudoku', () => {
+  it('puzzles have exactly one solution and the right number of blanks', () => {
+    const rng = seeded(11);
+    for (const skill of ['l.k.sudoku3', 'l.2.sudoku4']) {
+      for (let step = 1; step <= 3; step++) {
+        for (let i = 0; i < 60; i++) {
+          const p = makeSudoku(skill, step, rng);
+          expect(isValid(p.size, p.solution)).toBe(true);
+          const grid = p.solution.map((v, j) => (p.givens[j] ? v : null));
+          expect(countSolutions(p.size, grid)).toBe(1);
+          expect(p.givens.filter((g) => !g).length).toBeGreaterThan(0);
+          expect(new Set(p.symbols).size).toBe(p.size);
+        }
+      }
+    }
+  });
+});
+
+describe('Bake Shop answers are right', () => {
+  it('money totals match the coins shown', () => {
+    const rng = seeded(5);
+    for (let step = 1; step <= 3; step++) for (let i = 0; i < 200; i++) {
+      const q = BAKE_SHOP['m.2.money']({ rng, step, objects, kidName: 'A' });
+      const coins = (q.display as { coins: number[] }).coins;
+      const right = q.options.find((o) => o.correct)!.content as { text: string };
+      expect(right.text).toBe(`${coins.reduce((a, b) => a + b, 0)}¢`);
+    }
+  });
+  it('clock answers match the hands', () => {
+    const rng = seeded(6);
+    for (let step = 1; step <= 3; step++) for (let i = 0; i < 200; i++) {
+      const q = BAKE_SHOP['m.2.time']({ rng, step, objects, kidName: 'A' });
+      const { h, m } = q.display as { h: number; m: number };
+      const right = q.options.find((o) => o.correct)!.content as { text: string };
+      expect(right.text).toBe(`${h}:${String(m).padStart(2, '0')}`);
+    }
+  });
+  it('ruler answers are the length, not where it ends', () => {
+    const rng = seeded(7);
+    for (let step = 1; step <= 2; step++) for (let i = 0; i < 200; i++) {
+      const q = BAKE_SHOP['m.2.measure']({ rng, step, objects, kidName: 'A' });
+      const { start, length } = q.display as { start: number; length: number };
+      expect(start + length).toBeLessThanOrEqual(10);
+      const right = q.options.find((o) => o.correct)!.content as { n: number };
+      expect(right.n).toBe(length);
+    }
   });
 });

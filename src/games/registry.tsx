@@ -13,10 +13,13 @@ import { SCIENCE_SAFARI, SORT_IT } from './science/scienceGames';
 import { PATTERN_TRAIN } from './logic/patternTrain';
 import { MemoryGame } from './logic/MemoryGame';
 import { RobotGame } from './logic/RobotGame';
+import { SudokuGame } from './logic/SudokuGame';
+import { BAKE_SHOP } from './math/bakeShop';
 
 /** Choice-style games: which generators they use and how they look. */
 export const CHOICE_GAMES: Record<string, { subject: Subject; skin: Skin; gens: Record<string, ChoiceGen> }> = {
   numberPop: { subject: 'math', skin: 'bubbles', gens: NUMBER_POP },
+  bakeShop: { subject: 'math', skin: 'bakery', gens: BAKE_SHOP },
   letterLagoon: { subject: 'reading', skin: 'fish', gens: LETTER_LAGOON },
   pictureWords: { subject: 'spelling', skin: 'cards', gens: PICTURE_WORDS },
   scienceSafari: { subject: 'science', skin: 'cards', gens: SCIENCE_SAFARI },
@@ -48,4 +51,5 @@ export const GAME_COMPONENTS: Record<string, ComponentType<GameProps>> = {
   spellingBee: (p) => <TileGame {...p} subject="spelling" gameId="spellingBee" garden />,
   memoryFlip: MemoryGame,
   robotPath: RobotGame,
+  pictureSudoku: SudokuGame,
 };

@@ -1,6 +1,6 @@
 import { pick, randInt, shuffle, type Rng } from '../../core/random';
 import { choiceCount, emo, numberChoices, others, pickOne, question } from '../shared/build';
-import type { ChoiceGen, OptContent } from '../shared/types';
+import type { ChoiceGen, OptContent, ShapeName } from '../shared/types';
 import { CATEGORIES } from '../content/words';
 
 const UNITS_BY_STEP: string[][] = [
@@ -79,3 +79,29 @@ function patternQ(skillId: string, ctx: Parameters<ChoiceGen>[0], realStep: numb
   return question(skillId, realStep, 'What comes next on the pattern train?', 'What comes next?',
     { kind: 'pattern', items: p.shown.map((e) => emo(e)) }, pickOne(p.answer, wrong, (e) => emo(e)), rng);
 }
+
+/** Putting shapes together (an early tangram skill): which new shape do these pieces make? */
+const COMPOSE: { parts: ShapeName[]; makes: ShapeName; name: string; say: string }[] = [
+  { parts: ['rtriangle', 'rtriangle'], makes: 'square', name: 'square', say: 'Two triangles can make a square.' },
+  { parts: ['square', 'square'], makes: 'rectangle', name: 'rectangle', say: 'Two squares side by side make a rectangle.' },
+  { parts: ['semicircle', 'semicircle'], makes: 'circle', name: 'circle', say: 'Two half circles make a circle.' },
+  { parts: ['trapezoid', 'trapezoid'], makes: 'hexagon', name: 'hexagon', say: 'Two trapezoids make a hexagon.' },
+  { parts: ['triangle', 'triangle', 'triangle', 'triangle', 'triangle', 'triangle'], makes: 'hexagon', name: 'hexagon', say: 'Six triangles make a hexagon.' },
+  { parts: ['square', 'square', 'square', 'square'], makes: 'square', name: 'big square', say: 'Four squares make a bigger square.' },
+  { parts: ['triangle', 'triangle'], makes: 'diamond', name: 'diamond', say: 'Two triangles, one upside down, make a diamond.' },
+];
+// Shapes that can never be built from straight-edged pieces (or from half circles).
+const CURVY: ShapeName[] = ['circle', 'heart', 'oval', 'star'];
+const STRAIGHT: ShapeName[] = ['square', 'triangle', 'rectangle', 'hexagon'];
+
+PATTERN_TRAIN['l.2.tangram'] = ({ rng, step }) => {
+  const c = pick(rng, step === 1 ? COMPOSE.slice(0, 3) : COMPOSE);
+  const curved = c.makes === 'circle';
+  const pool = (curved ? STRAIGHT : CURVY).filter((x) => x !== c.makes);
+  const wrong = shuffle(rng, pool).slice(0, choiceCount(step + 1) - 1);
+  const shapeName = (sh: ShapeName) => (sh === 'rtriangle' ? 'triangles' : sh === 'semicircle' ? 'half circles' : `${sh}s`);
+  return question('l.2.tangram', step, `Put these ${c.parts.length} ${shapeName(c.parts[0])} together. What shape can they make?`, 'What shape can they make?',
+    { kind: 'pattern', items: c.parts.map((sh): OptContent => ({ kind: 'shape', shape: sh })) },
+    [{ content: { kind: 'shape', shape: c.makes }, correct: true }, ...wrong.map((sh) => ({ content: { kind: 'shape', shape: sh } as OptContent, correct: false }))], rng,
+    `Put these shapes together. What shape can they make? ${c.say}`);
+};

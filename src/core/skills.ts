@@ -18,13 +18,14 @@ const SS = ['scienceSafari'];
 const SORT = ['sortIt'];
 const PT = ['patternTrain'];
 const RP = ['robotPath'];
+const BS = ['bakeShop'];
 
 /** Wave 1 skill map (see docs/DESIGN.md §4). Skills with no games yet are tracked but not playable. */
 export const SKILLS: Skill[] = [
   // Math, Pre-K
   { id: 'm.pk.colors', subject: 'math', grade: 'PK', name: 'Colors', steps: 3, games: NP },
   { id: 'm.pk.shapes', subject: 'math', grade: 'PK', name: 'Shapes', steps: 3, games: NP },
-  { id: 'm.pk.count5', subject: 'math', grade: 'PK', name: 'Count to 5', steps: 3, games: NP },
+  { id: 'm.pk.count5', subject: 'math', grade: 'PK', name: 'Count to 5', steps: 3, games: ['numberPop', 'bakeShop'] },
   { id: 'm.pk.count10', subject: 'math', grade: 'PK', name: 'Count to 10', steps: 3, games: NP },
   { id: 'm.pk.moreless', subject: 'math', grade: 'PK', name: 'More or less', steps: 3, games: NP },
   // Math, K
@@ -35,18 +36,19 @@ export const SKILLS: Skill[] = [
   { id: 'm.k.sub5', subject: 'math', grade: 'K', name: 'Subtract within 5', steps: 3, games: NP },
   { id: 'm.k.make10', subject: 'math', grade: 'K', name: 'Make 10', steps: 3, games: NP },
   { id: 'm.k.shapes3d', subject: 'math', grade: 'K', name: '3D shapes', steps: 2, games: NP },
+  { id: 'm.k.coins', subject: 'math', grade: 'K', name: 'Know your coins', steps: 3, games: BS },
   // Math, 1 (placeholders so grade 1 kids have something until Wave 2)
   { id: 'm.1.add20', subject: 'math', grade: '1', name: 'Add & subtract within 20', steps: 3, games: NP },
-  { id: 'm.1.place100', subject: 'math', grade: '1', name: 'Tens and ones', steps: 3, games: NP },
+  { id: 'm.1.place100', subject: 'math', grade: '1', name: 'Tens and ones', steps: 3, games: ['numberPop', 'bakeShop'] },
   // Math, 2
   { id: 'm.2.add20', subject: 'math', grade: '2', name: 'Fast facts within 20', steps: 3, games: NP },
   { id: 'm.2.add100', subject: 'math', grade: '2', name: 'Add & subtract within 100', steps: 3, games: NP },
   { id: 'm.2.place1000', subject: 'math', grade: '2', name: 'Place value to 1000', steps: 3, games: NP },
   { id: 'm.2.skip', subject: 'math', grade: '2', name: 'Skip counting', steps: 3, games: NP },
   { id: 'm.2.evenodd', subject: 'math', grade: '2', name: 'Even and odd', steps: 2, games: NP },
-  { id: 'm.2.time', subject: 'math', grade: '2', name: 'Telling time', steps: 3, games: [] },
-  { id: 'm.2.money', subject: 'math', grade: '2', name: 'Counting money', steps: 3, games: [] },
-  { id: 'm.2.measure', subject: 'math', grade: '2', name: 'Measuring length', steps: 2, games: [] },
+  { id: 'm.2.time', subject: 'math', grade: '2', name: 'Telling time', steps: 3, games: BS },
+  { id: 'm.2.money', subject: 'math', grade: '2', name: 'Counting money', steps: 3, games: BS },
+  { id: 'm.2.measure', subject: 'math', grade: '2', name: 'Measuring length', steps: 2, games: BS },
   // Math, 3 (so the oldest has a next level to reach)
   { id: 'm.3.times', subject: 'math', grade: '3', name: 'Times tables', steps: 3, games: NP },
 
@@ -106,11 +108,12 @@ export const SKILLS: Skill[] = [
   { id: 'l.k.oddone', subject: 'logic', grade: 'K', name: 'Odd one out', steps: 3, games: PT },
   { id: 'l.k.memory', subject: 'logic', grade: 'K', name: 'Memory', steps: 3, games: ['memoryFlip'] },
   { id: 'l.k.maze', subject: 'logic', grade: 'K', name: 'Mazes', steps: 3, games: RP },
-  { id: 'l.2.sudoku4', subject: 'logic', grade: '2', name: '4×4 picture sudoku', steps: 3, games: [] },
+  { id: 'l.k.sudoku3', subject: 'logic', grade: 'K', name: '3×3 picture sudoku', steps: 3, games: ['pictureSudoku'] },
+  { id: 'l.2.sudoku4', subject: 'logic', grade: '2', name: '4×4 picture sudoku', steps: 3, games: ['pictureSudoku'] },
   { id: 'l.2.robot', subject: 'logic', grade: '2', name: 'Robot programming', steps: 3, games: RP },
   { id: 'l.2.sequence', subject: 'logic', grade: '2', name: 'Number sequences', steps: 3, games: PT },
   { id: 'l.2.memory', subject: 'logic', grade: '2', name: 'Big memory boards', steps: 3, games: ['memoryFlip'] },
-  { id: 'l.2.tangram', subject: 'logic', grade: '2', name: 'Tangrams', steps: 2, games: [] },
+  { id: 'l.2.tangram', subject: 'logic', grade: '2', name: 'Putting shapes together', steps: 2, games: PT },
 ];
 
 export const SKILL_BY_ID = Object.fromEntries(SKILLS.map((s) => [s.id, s])) as Record<string, Skill>;

@@ -12,7 +12,7 @@ export interface GameInfo {
 /** Wave 1 game list (docs/DESIGN.md §5). `ready: false` shows as "coming soon". */
 export const GAMES: GameInfo[] = [
   { id: 'numberPop', subject: 'math', name: 'Number Pop', emoji: '🎈', blurb: 'Pop the right bubble!', ready: true },
-  { id: 'bakeShop', subject: 'math', name: 'Bake Shop', emoji: '🧁', blurb: 'Count, add and make change', ready: false },
+  { id: 'bakeShop', subject: 'math', name: 'Bake Shop', emoji: '🧁', blurb: 'Coins, clocks, rulers and orders', ready: true },
   { id: 'letterLagoon', subject: 'reading', name: 'Letter Lagoon', emoji: '🐠', blurb: 'Catch the letter sounds', ready: true },
   { id: 'wordBuilder', subject: 'reading', name: 'Word Builder', emoji: '🏗️', blurb: 'Build words from letters', ready: true },
   { id: 'storySpot', subject: 'reading', name: 'Story Spot', emoji: '📚', blurb: 'Read a story, answer questions', ready: true },
@@ -23,5 +23,5 @@ export const GAMES: GameInfo[] = [
   { id: 'patternTrain', subject: 'logic', name: 'Pattern Train', emoji: '🚂', blurb: 'What comes next?', ready: true },
   { id: 'robotPath', subject: 'logic', name: 'Robot Path', emoji: '🤖', blurb: 'Guide the robot home', ready: true },
   { id: 'memoryFlip', subject: 'logic', name: 'Memory Flip', emoji: '🃏', blurb: 'Find the matching pairs', ready: true },
-  { id: 'pictureSudoku', subject: 'logic', name: 'Picture Sudoku', emoji: '🔲', blurb: 'Fill the grid', ready: false },
+  { id: 'pictureSudoku', subject: 'logic', name: 'Picture Sudoku', emoji: '🔲', blurb: 'One of each in every row', ready: true },
 ];
