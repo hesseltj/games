@@ -10,7 +10,8 @@ export type OptContent =
   | { kind: 'shape'; shape: ShapeName }
   | { kind: 'emoji'; emoji: string; label?: string }
   | { kind: 'group'; emoji: string; count: number }
-  | { kind: 'coins'; coins: number[] };
+  | { kind: 'coins'; coins: number[] }
+  | { kind: 'fraction'; n: number; d: number; pie?: boolean };
 
 export interface ChoiceOption {
   id: string;
@@ -31,7 +32,10 @@ export type Display =
   | { kind: 'coins'; coins: number[] }
   | { kind: 'clock'; h: number; m: number }
   | { kind: 'ruler'; start: number; length: number; emoji: string }
-  | { kind: 'order'; emoji: string; text: string };
+  | { kind: 'order'; emoji: string; text: string }
+  | { kind: 'fraction'; n: number; d: number; pie?: boolean }
+  | { kind: 'map'; size: number; cells: { x: number; y: number; emoji: string }[] }
+  | { kind: 'grid'; rows: number; cols: number };
 
 export interface ChoiceQuestion {
   id: string;

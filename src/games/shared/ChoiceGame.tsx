@@ -6,12 +6,13 @@ import type { Rng } from '../../core/random';
 import { speak, setSpeechRate, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { Shape } from '../../ui/Shape';
-import { Clock, CoinRow, Ruler } from '../../ui/MathArt';
+import { Clock, CoinRow, FractionBar, GridMap, Ruler } from '../../ui/MathArt';
 import type { ChoiceOption, ChoiceQuestion, Display, OptContent } from './types';
 import { GameTopBar } from './GameTopBar';
 import { GameBuddy, comboOf } from './GameBuddy';
 
-export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story' | 'bakery';
+import type { Skin } from '../choiceGens';
+export type { Skin };
 
 const TINTS = ['#ffd6e7', '#d6ecff', '#e2ffd6', '#fff1c2', '#eadcff', '#ffe0cc'];
 const PRAISE = ['Great job!', 'You got it!', 'Awesome!', 'Yes!', 'Super!', 'Way to go!', 'Nice!'];
@@ -26,14 +27,15 @@ export interface GameProps {
  * Shared "pick the right answer" game. Number Pop, Letter Lagoon, Picture Words, Sort It!,
  * Science Safari, Pattern Train and Story Spot are all this component with a different skin.
  */
-export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, generate, total }: GameProps & {
+export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, generate, total, fixedSkillId }: GameProps & {
   subject: Subject;
   gameId: string;
   skin: Skin;
   generate: (skill: Skill, step: number, rng: Rng) => ChoiceQuestion;
   total?: number;
+  fixedSkillId?: string;
 }) {
-  const round = useRound({ kid, subject, gameId, onFinish, generate, total });
+  const round = useRound({ kid, subject, gameId, onFinish, generate, total, fixedSkillId });
   const { question: q, index, grade } = round;
   const young = grade === 'PK' || grade === 'K';
 
@@ -125,6 +127,7 @@ export function labelFor(c: OptContent): string {
     case 'emoji': return c.label ?? c.emoji;
     case 'group': return `${c.count}`;
     case 'coins': return `${c.coins.reduce((a, b) => a + b, 0)} cents`;
+    case 'fraction': return `${c.n} out of ${c.d}`;
   }
 }
 
@@ -151,6 +154,8 @@ export function OptionFace({ c }: { c: OptContent }) {
       return <span className={`bf-group c${Math.min(c.count, 8)}`}>{Array.from({ length: c.count }, (_, i) => <span key={i}>{c.emoji}</span>)}</span>;
     case 'coins':
       return <CoinRow coins={c.coins} size={c.coins.length === 1 ? 2.6 : c.coins.length > 3 ? 1 : 1.4} />;
+    case 'fraction':
+      return <FractionBar n={c.n} d={c.d} pie={c.pie} size={c.pie ? 1.2 : 0.8} />;
   }
 }
 
@@ -197,6 +202,16 @@ function DisplayView({ d }: { d: Display }) {
       return <div className="np-display-box"><Clock h={d.h} m={d.m} size={210} /></div>;
     case 'ruler':
       return <div className="np-display-box wide"><Ruler start={d.start} length={d.length} emoji={d.emoji} /></div>;
+    case 'fraction':
+      return <div className="np-display-box"><FractionBar n={d.n} d={d.d} pie={d.pie} size={d.pie ? 1.6 : 1.4} /></div>;
+    case 'map':
+      return <div className="np-display-box"><GridMap size={d.size} cells={d.cells} /></div>;
+    case 'grid':
+      return (
+        <div className="np-display-box">
+          <div className="area-grid" style={{ ['--c' as string]: d.cols }}>{Array.from({ length: d.rows * d.cols }, (_, i) => <span key={i} />)}</div>
+        </div>
+      );
     case 'order':
       return (
         <div className="order-ticket">

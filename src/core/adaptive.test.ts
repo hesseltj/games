@@ -71,8 +71,9 @@ describe('pickSkill', () => {
 
   it('falls back to a lower grade when the kid grade has no skills in a game', () => {
     const rng = seeded(5);
-    const s = pickSkill(math, '5', {}, rng);
-    expect(s.grade).toBe('3');
+    const helpers = skillsFor('social', 'helpersAndMe'); // only goes up to grade 1
+    const s = pickSkill(helpers, '5', {}, rng);
+    expect(s.grade).toBe('1');
   });
 
   it('every skill id is unique', () => {

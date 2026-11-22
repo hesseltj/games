@@ -18,6 +18,7 @@ const SETS = [
 ];
 
 export function buildPattern(rng: Rng, step: number, pool: string[]) {
+  if (pool.length < 4) pool = [...new Set([...pool, '🔴', '🔵', '🟡', '🟢'])];
   const unit = pick(rng, UNITS_BY_STEP[Math.min(step, 3) - 1]);
   const letters = [...new Set(unit.split(''))];
   const symbols = shuffle(rng, pool).slice(0, letters.length);

@@ -6,7 +6,7 @@ import type { InventoryItem, Kid, LedgerEntry, Room, RoundLog, SkillProgress, Su
 import { dayKey } from './random';
 import { SKILLS, gradeIndex } from './skills';
 import { GAMES } from './games';
-import { SUBJECTS } from './subjects';
+import { CURRENCIES, SUBJECTS } from './subjects';
 import { GRADE_LABEL } from './types';
 import { ITEMS, ITEM_BY_ID, type CatalogItem } from '../shop/catalog';
 
@@ -194,7 +194,9 @@ export function badges(s: KidSnapshot, today = dayKey()): Badge[] {
     b('rounds-100', '💯', 'One Hundred!', 'Finish 100 rounds', n >= 100),
     b('perfect-1', '⭐', 'Perfect!', 'Get every answer right on the first try', perfect >= 1),
     b('perfect-10', '🌟', 'Superstar', 'Get 10 perfect rounds', perfect >= 10),
-    b('explorer', '🧭', 'Explorer', 'Play all 5 subjects', SUBJECTS.every((x) => subjects.has(x.id))),
+    // The first five subjects, so kids who earned this before World existed keep it.
+    b('explorer', '🧭', 'Explorer', 'Play math, reading, spelling, science and logic', (['math', 'reading', 'spelling', 'science', 'logic'] as const).every((x) => subjects.has(x))),
+    b('world-traveler', '🌎', 'World Traveler', 'Play all 6 subjects', SUBJECTS.every((x) => subjects.has(x.id))),
     b('all-games', '🎮', 'Game Taster', 'Try every game', playable.every((g) => games.has(g) || !gameFitsKid(g, s.kid))),
     b('streak-3', '🔥', 'On Fire', 'Play 3 days in a row', best >= 3),
     b('streak-7', '📅', 'Week Streak', 'Play 7 days in a row', best >= 7),
@@ -295,7 +297,7 @@ export function planReward(r: PendingReward, kid: Kid, inventory: InventoryItem[
       say: creatureId ? `Level ${r.level}! A wild ${item!.name} wants to be your friend!` : `You reached level ${r.level}! Here’s a present!`,
       item,
       inventory: item ? [inv(item.id)] : [],
-      ledger: (['coins', 'stars', 'gems', 'leaves', 'pieces'] as Currency[]).map((c) => coins(c, 20)),
+      ledger: CURRENCIES.map((c) => coins(c.id, 20)),
     };
   }
   if (r.kind === 'streak') {
@@ -309,7 +311,7 @@ export function planReward(r: PendingReward, kid: Kid, inventory: InventoryItem[
     };
   }
   // Daily quest: 25 of the currency they've earned least, plus a small gift.
-  const earned: Record<Currency, number> = { coins: 0, stars: 0, gems: 0, leaves: 0, pieces: 0 };
+  const earned: Record<Currency, number> = { coins: 0, stars: 0, gems: 0, leaves: 0, pieces: 0, shards: 0 };
   for (const e of ledger) if (e.kidId === kid.id && e.amount > 0) earned[e.currency] += e.amount;
   const least = (Object.keys(earned) as Currency[]).sort((a, b) => earned[a] - earned[b])[0];
   const item = pickGiftItem(kid.id, kid.favoriteTheme, `quest${r.day}`, inventory, 60);

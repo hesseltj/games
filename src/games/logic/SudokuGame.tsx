@@ -5,7 +5,7 @@ import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
 import { GameBuddy } from '../shared/GameBuddy';
 import type { GameProps } from '../shared/ChoiceGame';
-import { makeSudoku, type SudokuPuzzle } from './sudoku';
+import { boxDims, makeSudoku, type SudokuPuzzle } from './sudoku';
 
 export const SUDOKU_PUZZLES_PER_ROUND = 4;
 
@@ -19,8 +19,9 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
   const [bad, setBad] = useState<number | null>(null);
   const [done, setDone] = useState(false);
 
-  const explain = () => speak(p.size === 4
-    ? 'Every row, every column, and every box of four needs one of each picture. Tap an empty square, then pick a picture.'
+  const box = boxDims(p.size);
+  const explain = () => speak(box
+    ? 'Every row, every column, and every box needs one of each picture. Tap an empty square, then pick a picture.'
     : 'Every row and every column needs one of each picture. Tap an empty square, then pick a picture.');
 
   useEffect(() => () => stopSpeaking(), []);
@@ -54,7 +55,7 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
       setBad(v);
       setTimeout(() => setBad(null), 450);
       setMisses((m) => m + 1);
-      speak(`That picture is already in this row, column${p.size === 4 ? ', or box' : ''}. Try another one!`);
+      speak(`That picture is already in this row, column${box ? ', or box' : ''}. Try another one!`);
     }
   }
 
@@ -65,19 +66,21 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
     filled.forEach((v, i) => {
       if (v == null) return;
       const ri = Math.floor(i / p.size), ci = i % p.size;
-      const box = p.size === 4 && Math.floor(ri / 2) === Math.floor(r / 2) && Math.floor(ci / 2) === Math.floor(c / 2);
-      if (ri === r || ci === c || box) used.add(v);
+      const sameBox = !!box && Math.floor(ri / box[0]) === Math.floor(r / box[0]) && Math.floor(ci / box[1]) === Math.floor(c / box[1]);
+      if (ri === r || ci === c || sameBox) used.add(v);
     });
   }
 
   return (
     <div className="screen sudoku-game">
       <GameTopBar total={round.total} index={round.index} results={round.results} onQuit={onQuit} onSpeak={explain} />
-      <div className="np-text center">One of each in every row and column{p.size === 4 ? ' and box' : ''}!</div>
+      <div className="np-text center">One of each in every row and column{box ? ' and box' : ''}!</div>
       <div className="sudoku-body">
         <div className={`sudoku-grid n${p.size}`} style={{ ['--n' as string]: p.size }}>
           {filled.map((v, i) => (
-            <button key={i} className={['scell', p.givens[i] ? 'given' : 'blank', selected === i ? 'sel' : '', done ? 'done' : ''].join(' ')}
+            <button key={i} className={['scell', p.givens[i] ? 'given' : 'blank', selected === i ? 'sel' : '', done ? 'done' : '',
+              box && (i % p.size) % box[1] === box[1] - 1 && i % p.size !== p.size - 1 ? 'box-r' : '',
+              box && Math.floor(i / p.size) % box[0] === box[0] - 1 && Math.floor(i / p.size) !== p.size - 1 ? 'box-b' : ''].join(' ')}
               onClick={() => { if (!p.givens[i] && filled[i] == null) { sfx.tap(); setSelected(i); } }}>
               {v != null ? p.symbols[v] : ''}
             </button>

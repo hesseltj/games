@@ -46,7 +46,7 @@ export function Shop({ kid, onBack }: { kid: Kid; onBack: () => void }) {
     .filter((i) => Object.keys(i.price).length > 0)
     .sort((a, b) => themeRank(a) - themeRank(b) || total(a.price) - total(b.price));
   function themeRank(i: CatalogItem) {
-    return i.theme === 'basic' ? 99 : themeOrder.indexOf(i.theme);
+    return i.theme === 'basic' || i.theme === 'seasonal' ? 99 : themeOrder.indexOf(i.theme);
   }
 
   const owned = (id: string) => myInv.filter((i) => i.itemId === id).length;
@@ -183,7 +183,7 @@ function BuySheet({ kid, sel, wallet, owned, onClose, onBuy }: {
             : <span className="room-art big">{room?.emoji}</span>}
         </div>
         <h2>{name}</h2>
-        {item && item.theme !== 'basic' && <div className="sheet-theme">{THEME_BY_ID[item.theme].emoji} {THEME_BY_ID[item.theme].name}</div>}
+        {item && item.theme !== 'basic' && item.theme !== 'seasonal' && <div className="sheet-theme">{THEME_BY_ID[item.theme].emoji} {THEME_BY_ID[item.theme].name}</div>}
         <PriceTag price={price} wallet={wallet} />
         {soldOut ? (
           <p className="sheet-note">You already have this! ✓</p>

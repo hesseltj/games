@@ -14,7 +14,7 @@ export interface Wear {
 export interface CatalogItem {
   id: string;
   name: string;
-  theme: ThemeId | 'basic';
+  theme: ThemeId | 'basic' | 'seasonal';
   category: Category;
   price: Price;
   /** Main picture. */

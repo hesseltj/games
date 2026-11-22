@@ -3,24 +3,19 @@ import { seeded } from '../core/random';
 import { SKILLS } from '../core/skills';
 import { GAMES } from '../core/games';
 import type { ChoiceGen } from './shared/types';
-import { GENERATORS as NUMBER_POP } from './numberPop/questions';
-import { LETTER_LAGOON } from './reading/letterLagoon';
-import { PICTURE_WORDS } from './spelling/pictureWords';
-import { SCIENCE_SAFARI, SORT_IT } from './science/scienceGames';
-import { PATTERN_TRAIN } from './logic/patternTrain';
 import { BAKE_SHOP } from './math/bakeShop';
+import { CHOICE_GAMES } from './choiceGens';
 import { makeSudoku, countSolutions, isValid } from './logic/sudoku';
 import { makeStoryGenerator } from './reading/storySpot';
 import { STORIES } from './content/stories';
 import { tileQuestion } from './spelling/tiles';
 import { CHUNK_WORDS } from './content/words';
+import { BLEND_WORDS, MORPH5_WORDS, MORPH_WORDS, SYLLABLE_WORDS } from './content/wordsUpper';
 import { makeBoard, isSlip } from './logic/memory';
 import { makePuzzle, runProgram, shortestPath, key, DIRS, type Dir } from './logic/robot';
 
-const CHOICE: Record<string, Record<string, ChoiceGen>> = {
-  numberPop: NUMBER_POP, letterLagoon: LETTER_LAGOON, pictureWords: PICTURE_WORDS,
-  scienceSafari: SCIENCE_SAFARI, sortIt: SORT_IT, patternTrain: PATTERN_TRAIN, bakeShop: BAKE_SHOP,
-};
+const CHOICE: Record<string, Record<string, ChoiceGen>> = Object.fromEntries(Object.entries(CHOICE_GAMES).map(([id, g]) => [id, g.gens]));
+const skillsIn = (game: string) => SKILLS.filter((s) => s.games.includes(game)).map((s) => s.id);
 const OTHER_GAMES = new Set(['storySpot', 'wordBuilder', 'spellingBee', 'memoryFlip', 'robotPath', 'pictureSudoku']);
 const objects = ['🐶', '🐱', '🐰', '🐻', '🐸', '🐥'];
 
@@ -84,9 +79,9 @@ describe('Story Spot', () => {
 
 describe('tile spelling', () => {
   it('chunks spell their word', () => {
-    for (const w of CHUNK_WORDS) expect(w.chunks.join(''), w.word).toBe(w.word);
+    for (const w of [...CHUNK_WORDS, ...BLEND_WORDS, ...SYLLABLE_WORDS, ...MORPH_WORDS, ...MORPH5_WORDS]) expect(w.chunks.join(''), w.word).toBe(w.word);
   });
-  for (const skill of ['r.k.cvc', 's.k.spellcvc', 's.2.spell', 'r.2.digraphs', 'r.2.vowels']) {
+  for (const skill of [...skillsIn('wordBuilder'), ...skillsIn('spellingBee')]) {
     it(`${skill}: tiles always contain the answer`, () => {
       const rng = seeded(9);
       for (let step = 1; step <= 3; step++) {
@@ -110,7 +105,7 @@ describe('tile spelling', () => {
 describe('Memory Flip', () => {
   it('boards are pairs', () => {
     const rng = seeded(2);
-    for (const skill of ['l.pk.match', 'l.k.memory', 'l.2.memory']) {
+    for (const skill of skillsIn('memoryFlip')) {
       for (let step = 1; step <= 3; step++) {
         const b = makeBoard(skill, step, ['🐶', '🐱'], rng);
         const counts = new Map<string, number>();
@@ -130,7 +125,7 @@ describe('Memory Flip', () => {
 describe('Robot Path', () => {
   it('every puzzle is solvable, and its shortest path works as a program', () => {
     const rng = seeded(4);
-    for (const skill of ['l.pk.maze', 'l.k.maze', 'l.2.robot']) {
+    for (const skill of skillsIn('robotPath')) {
       for (let step = 1; step <= 3; step++) {
         for (let i = 0; i < 100; i++) {
           const p = makePuzzle(skill, step, rng);
@@ -154,7 +149,7 @@ describe('Robot Path', () => {
 describe('Picture Sudoku', () => {
   it('puzzles have exactly one solution and the right number of blanks', () => {
     const rng = seeded(11);
-    for (const skill of ['l.k.sudoku3', 'l.2.sudoku4']) {
+    for (const skill of skillsIn('pictureSudoku')) {
       for (let step = 1; step <= 3; step++) {
         for (let i = 0; i < 60; i++) {
           const p = makeSudoku(skill, step, rng);
@@ -196,6 +191,30 @@ describe('Bake Shop answers are right', () => {
       expect(start + length).toBeLessThanOrEqual(10);
       const right = q.options.find((o) => o.correct)!.content as { n: number };
       expect(right.n).toBe(length);
+    }
+  });
+});
+
+describe('grade coverage', () => {
+  const subjects = ['math', 'reading', 'spelling', 'science', 'logic', 'social'] as const;
+  for (const subject of subjects) {
+    for (const grade of ['PK', 'K', '1', '2', '3', '4', '5'] as const) {
+      it(`${subject} has playable skills at ${grade}`, () => {
+        expect(SKILLS.filter((s) => s.subject === subject && s.grade === grade && s.games.length > 0).length).toBeGreaterThan(0);
+      });
+    }
+  }
+  it('every story grade has enough stories for a round', () => {
+    for (const g of ['1', '2', '3', '4', '5']) expect(STORIES.filter((s) => (s.grade ?? '2') === g).length, g).toBeGreaterThanOrEqual(3);
+  });
+  it('Story Spot for each grade only tells that grade’s stories', () => {
+    for (const g of ['1', '3', '4', '5']) {
+      const gen = makeStoryGenerator(seeded(3), `r.${g}.comprehend`);
+      for (let i = 0; i < 9; i++) {
+        const q = gen(3);
+        const title = (q.display as { title: string }).title;
+        expect(STORIES.find((s) => s.title === title)?.grade).toBe(g);
+      }
     }
   });
 });

@@ -72,3 +72,47 @@ export function Ruler({ start, length, emoji, max = 10 }: { start: number; lengt
     </svg>
   );
 }
+
+/** A fraction drawn as a bar (or a pie) with n of d parts shaded. */
+export function FractionBar({ n, d, pie = false, size = 1 }: { n: number; d: number; pie?: boolean; size?: number }) {
+  if (pie) {
+    const r = 40;
+    const slices = Array.from({ length: d }, (_, i) => {
+      const a0 = (i / d) * 2 * Math.PI - Math.PI / 2, a1 = ((i + 1) / d) * 2 * Math.PI - Math.PI / 2;
+      const p = d === 1
+        ? `M50 10 A40 40 0 1 1 49.99 10 Z`
+        : `M50 50 L${50 + r * Math.cos(a0)} ${50 + r * Math.sin(a0)} A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${50 + r * Math.cos(a1)} ${50 + r * Math.sin(a1)} Z`;
+      return <path key={i} d={p} fill={i < n ? '#ff8a5b' : '#fff'} stroke={OUT} strokeWidth="2.5" strokeLinejoin="round" />;
+    });
+    return <svg width={90 * size} height={90 * size} viewBox="0 0 100 100" aria-label={`${n} out of ${d}`}>{slices}</svg>;
+  }
+  const w = 160, h = 40, cw = w / d;
+  return (
+    <svg width={w * size} height={h * size} viewBox={`-2 -2 ${w + 4} ${h + 4}`} aria-label={`${n} out of ${d}`}>
+      {Array.from({ length: d }, (_, i) => <rect key={i} x={i * cw} y="0" width={cw} height={h} fill={i < n ? '#5b8def' : '#fff'} stroke={OUT} strokeWidth="2.5" />)}
+    </svg>
+  );
+}
+
+/** A little grid map with a compass rose, for direction questions. */
+export function GridMap({ size, cells }: { size: number; cells: { x: number; y: number; emoji: string }[] }) {
+  return (
+    <div className="grid-map-wrap">
+      <div className="grid-map" style={{ ['--n' as string]: size }}>
+        {Array.from({ length: size * size }, (_, i) => {
+          const c = cells.find((k) => k.y * size + k.x === i);
+          return <span key={i} className="gm-cell">{c?.emoji ?? ''}</span>;
+        })}
+      </div>
+      <svg className="compass" viewBox="0 0 60 60" width="64" height="64" aria-label="compass: north is up">
+        <circle cx="30" cy="30" r="27" fill="#fff" stroke={OUT} strokeWidth="2" />
+        <path d="M30 8 L35 30 L30 26 L25 30 Z" fill="#ef4444" stroke={OUT} strokeWidth="1.5" />
+        <path d="M30 52 L35 30 L30 34 L25 30 Z" fill="#fff" stroke={OUT} strokeWidth="1.5" />
+        <text x="30" y="7" textAnchor="middle" fontSize="9" fontWeight="800" fill={OUT}>N</text>
+        <text x="30" y="59" textAnchor="middle" fontSize="9" fontWeight="800" fill={OUT}>S</text>
+        <text x="56" y="33" textAnchor="middle" fontSize="9" fontWeight="800" fill={OUT}>E</text>
+        <text x="4" y="33" textAnchor="middle" fontSize="9" fontWeight="800" fill={OUT}>W</text>
+      </svg>
+    </div>
+  );
+}

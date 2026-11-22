@@ -5,8 +5,8 @@ export const GRADE_LABEL: Record<Grade, string> = {
   '3': '3rd grade', '4': '4th grade', '5': '5th grade',
 };
 
-export type Subject = 'math' | 'reading' | 'spelling' | 'science' | 'logic';
-export type Currency = 'coins' | 'stars' | 'gems' | 'leaves' | 'pieces';
+export type Subject = 'math' | 'reading' | 'spelling' | 'science' | 'logic' | 'social';
+export type Currency = 'coins' | 'stars' | 'gems' | 'leaves' | 'pieces' | 'shards';
 
 export type ThemeId = 'animals' | 'squishy' | 'dolls' | 'sports' | 'creatures' | 'bricks';
 

@@ -24,4 +24,7 @@ export const GAMES: GameInfo[] = [
   { id: 'robotPath', subject: 'logic', name: 'Robot Path', emoji: '🤖', blurb: 'Guide the robot home', ready: true },
   { id: 'memoryFlip', subject: 'logic', name: 'Memory Flip', emoji: '🃏', blurb: 'Find the matching pairs', ready: true },
   { id: 'pictureSudoku', subject: 'logic', name: 'Picture Sudoku', emoji: '🔲', blurb: 'One of each in every row', ready: true },
+  { id: 'helpersAndMe', subject: 'social', name: 'Helpers & Me', emoji: '🧑‍🚒', blurb: 'Helpers, feelings and safety', ready: true },
+  { id: 'mapExplorer', subject: 'social', name: 'Map Explorer', emoji: '🗺️', blurb: 'Maps, directions and the world', ready: true },
+  { id: 'timeTravelers', subject: 'social', name: 'Time Travelers', emoji: '🕰️', blurb: 'Then and now, money and history', ready: true },
 ];

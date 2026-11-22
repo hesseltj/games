@@ -7,7 +7,7 @@ import { GameBuddy } from '../shared/GameBuddy';
 import type { GameProps } from '../shared/ChoiceGame';
 import { ARROW, isNeighbor, key, makePuzzle, runProgram, type Dir, type Pos, type Puzzle } from './robot';
 
-const MAX_PROGRAM = 10;
+const MAX_PROGRAM = 16;
 
 /** Robot Path: tap to walk the robot (Pre-K/K) or plan arrow moves and press Go (grade 2). */
 export function RobotGame({ kid, onFinish, onQuit }: GameProps) {

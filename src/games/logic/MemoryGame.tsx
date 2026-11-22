@@ -61,7 +61,8 @@ function MemoryRound({ kid, onFinish, onQuit, board }: GameProps & { board: Memo
     }
   }
 
-  const cols = board.cards.length <= 4 ? 2 : board.cards.length <= 6 ? 3 : board.cards.length <= 12 ? 4 : 4;
+  const n = board.cards.length;
+  const cols = n <= 4 ? 2 : n <= 6 ? 3 : n <= 16 ? 4 : n <= 20 ? 5 : 6;
   return (
     <div className="screen memory-game">
       <GameTopBar total={round.total} index={matched.size / 2} results={round.results} onQuit={onQuit} />

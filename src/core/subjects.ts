@@ -14,6 +14,7 @@ export const SUBJECTS: SubjectInfo[] = [
   { id: 'spelling', name: 'Spelling', emoji: '🔤', currency: 'gems', color: '#7b6cf6' },
   { id: 'science', name: 'Science', emoji: '🔬', currency: 'leaves', color: '#3fbf7f' },
   { id: 'logic', name: 'Logic', emoji: '🧩', currency: 'pieces', color: '#3fa7f0' },
+  { id: 'social', name: 'World', emoji: '🌎', currency: 'shards', color: '#d9822b' },
 ];
 
 export const SUBJECT_BY_ID = Object.fromEntries(SUBJECTS.map((s) => [s.id, s])) as Record<Subject, SubjectInfo>;
@@ -24,4 +25,5 @@ export const CURRENCIES: { id: Currency; name: string; emoji: string }[] = [
   { id: 'gems', name: 'Gems', emoji: '💎' },
   { id: 'leaves', name: 'Leaves', emoji: '🍃' },
   { id: 'pieces', name: 'Puzzle Pieces', emoji: '🧩' },
+  { id: 'shards', name: 'Compass Shards', emoji: '🧭' },
 ];
