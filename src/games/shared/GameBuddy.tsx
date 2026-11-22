@@ -3,14 +3,11 @@ import { KidAvatar } from '../../ui/KidAvatar';
 
 export type BuddyMood = 'idle' | 'cheer' | 'oops';
 
-const OOPS = ['Hmm…', 'Try again!', 'You can do it!'];
-
-/** The kid's own character in the corner, cheering them on. */
-export function GameBuddy({ kid, mood, combo }: { kid: Kid; mood: BuddyMood; combo: number }) {
+/** The kid's own character in the corner, cheering them on and saying what the voice says. */
+export function GameBuddy({ kid, mood, line }: { kid: Kid; mood: BuddyMood; line?: string | null; combo?: number }) {
   return (
     <div className={`game-buddy ${mood}`} aria-hidden="true">
-      {mood === 'oops' && <span className="buddy-bubble">{OOPS[Math.floor(Date.now() / 1000) % OOPS.length]}</span>}
-      {mood === 'cheer' && combo >= 3 && <span className="buddy-bubble combo">🔥 {combo} in a row!</span>}
+      {line && <span key={line} className={`buddy-bubble ${/in a row/.test(line) ? 'combo' : ''}`}>{/in a row/.test(line) ? '🔥 ' : ''}{line}</span>}
       <KidAvatar kid={kid} size={74} mood={mood === 'cheer' ? 'cheer' : 'happy'} />
     </div>
   );

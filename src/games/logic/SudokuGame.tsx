@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRound } from '../../core/useRound';
-import { speak, stopSpeaking } from '../../audio/speech';
+import { praiseLine, speak, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
 import { GameBuddy } from '../shared/GameBuddy';
@@ -47,7 +47,8 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
       if (next < 0) {
         setDone(true);
         sfx.correct();
-        speak(misses === 0 ? 'Perfect puzzle!' : 'You solved it!');
+        sfx.cheer();
+        speak(misses === 0 ? `Perfect puzzle! ${praiseLine(kid.name)}` : `You solved it! ${praiseLine(kid.name)}`, 'praise');
         setTimeout(() => round.submit(misses === 0), 1300);
       }
     } else {
@@ -55,7 +56,7 @@ export function SudokuGame({ kid, onFinish, onQuit }: GameProps) {
       setBad(v);
       setTimeout(() => setBad(null), 450);
       setMisses((m) => m + 1);
-      speak(`That picture is already in this row, column${box ? ', or box' : ''}. Try another one!`);
+      speak(`Oops! That picture is already in this row, column${box ? ', or box' : ''}. Try another one!`, 'encourage');
     }
   }
 

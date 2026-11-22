@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRound } from '../../core/useRound';
-import { speak, stopSpeaking } from '../../audio/speech';
+import { praiseLine, speak, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
 import { GameBuddy } from '../shared/GameBuddy';
@@ -38,13 +38,14 @@ export function RobotGame({ kid, onFinish, onQuit }: GameProps) {
     setBump(true);
     setTimeout(() => setBump(false), 400);
     setMisses((m) => m + 1);
-    speak(msg);
+    speak(msg, 'encourage');
   }
 
   function win() {
     setWon(true);
     sfx.correct();
-    speak('Beep boop! Battery found!');
+    sfx.cheer();
+    speak('Beep boop! Battery found! ' + praiseLine(kid.name), 'praise');
     setTimeout(() => round.submit(misses === 0), 1300);
   }
 

@@ -33,7 +33,7 @@ export function Gifts({ kid, pending: initial, onClose }: { kid: Kid; pending: P
       setOpened(true);
       sfx.open();
       setTimeout(() => sfx.sparkle(), 300);
-      speak(plan.item ? `${plan.say} You got ${plan.item.name}!` : plan.say);
+      speak(plan.item ? `${plan.say} You got ${plan.item.name}!` : plan.say, 'celebrate');
       await addInventory(plan.inventory);
       await addLedger(plan.ledger);
     }, 700);

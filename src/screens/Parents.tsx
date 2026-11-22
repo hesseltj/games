@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { currentVoiceURI, englishVoices, setVoice, speak } from '../audio/speech';
 import { ParentReport } from './ParentReport';
 import { minutesLeft, LIMIT_CHOICES } from '../core/report';
 import { dayKey } from '../core/random';
@@ -183,13 +184,41 @@ function SignInForm() {
 function SoundSettings() {
   const music = useAudioSetting('music');
   const sounds = useAudioSetting('sounds');
+  const gameMusic = useAudioSetting('gameMusic');
   return (
     <section className="card">
       <h3>🔊 Sound on this device</h3>
       <label className="toggle"><input type="checkbox" checked={music} onChange={(e) => setAudioSetting('music', e.target.checked)} /> Background music</label>
+      <label className="toggle"><input type="checkbox" checked={gameMusic} disabled={!music} onChange={(e) => setAudioSetting('gameMusic', e.target.checked)} /> Music during games (gets quieter when the voice talks)</label>
       <label className="toggle"><input type="checkbox" checked={sounds} onChange={(e) => setAudioSetting('sounds', e.target.checked)} /> Sound effects</label>
+      <VoicePicker />
       <p className="hint">Spoken instructions always stay on, since younger kids need them to play. Use the tablet’s volume buttons to make them quieter.</p>
     </section>
+  );
+}
+
+/** Lets a grown-up pick the nicest-sounding voice installed on this tablet. */
+function VoicePicker() {
+  const [voices, setVoices] = useState(() => englishVoices());
+  const [chosen, setChosen] = useState(() => currentVoiceURI());
+  useEffect(() => {
+    const update = () => { setVoices(englishVoices()); setChosen(currentVoiceURI()); };
+    speechSynthesis?.addEventListener?.('voiceschanged', update);
+    const t = setTimeout(update, 500);
+    return () => { clearTimeout(t); speechSynthesis?.removeEventListener?.('voiceschanged', update); };
+  }, []);
+  if (voices.length === 0) return <p className="hint">This device has no English voices installed. On Android, install “Speech Services by Google” from the Play Store.</p>;
+  return (
+    <div className="voice-picker">
+      <label className="setting-row">
+        Voice
+        <select value={chosen ?? ''} onChange={(e) => { setVoice(e.target.value); setChosen(e.target.value); speak('Hi! Let’s play and learn together! Great job!', 'praise'); }}>
+          {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>)}
+        </select>
+      </label>
+      <button className="small-btn alt" onClick={() => speak('Woo-hoo! You got it! Five in a row, you are on fire!', 'praise')}>▶ Test voice</button>
+      <p className="hint">Different tablets come with different voices. Try a few and pick the one your kids like best. Voices marked “Natural” or “Enhanced” usually sound the best.</p>
+    </div>
   );
 }
 

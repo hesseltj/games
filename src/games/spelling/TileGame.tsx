@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Subject } from '../../core/types';
 import { useRound } from '../../core/useRound';
-import { speak, setSpeechRate, stopSpeaking } from '../../audio/speech';
+import { praiseLine, speak, setSpeechRate, stopSpeaking, tryAgainLine } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
-import { GameBuddy, comboOf } from '../shared/GameBuddy';
+import { GameBuddy } from '../shared/GameBuddy';
 import type { GameProps } from '../shared/ChoiceGame';
 import { tileQuestion, type TileQuestion } from './tiles';
 
@@ -17,6 +17,7 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
   const [shake, setShake] = useState<number | null>(null);
   const [done, setDone] = useState(false);
   const [flowers, setFlowers] = useState(0);
+  const [said, setSaid] = useState<string | null>(null);
   const locked = useRef(false);
 
   useEffect(() => { setSpeechRate(0.85); return () => stopSpeaking(); }, []);
@@ -26,7 +27,8 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
     setMisses(0);
     setDone(false);
     locked.current = false;
-    const t = setTimeout(() => speak(q.say), 350);
+    setSaid(null);
+    const t = setTimeout(() => speak(q.say, 'question'), 350);
     return () => clearTimeout(t);
   }, [q]);
 
@@ -47,7 +49,9 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
         setDone(true);
         setFlowers((x) => x + 1);
         setTimeout(() => sfx.correct(), 150);
-        speak(`${q.word}! ${misses === 0 ? 'Perfect!' : 'You did it!'}`);
+        const line = praiseLine(kid.name);
+        setSaid(line);
+        speak(`${q.word}! ${line}`, 'praise');
         setTimeout(() => round.submit(misses === 0), 1500);
       }
     } else {
@@ -55,7 +59,9 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
       setShake(ti);
       setTimeout(() => setShake(null), 450);
       setMisses((m) => m + 1);
-      speak(misses === 0 ? `Try again! ${q.word}.` : `Listen: ${q.word}. ${q.slots.join(', ')}.`);
+      const line = tryAgainLine();
+      setSaid(line);
+      speak(misses === 0 ? `${line} ${q.word}.` : `Listen: ${q.word}. ${q.slots.join(', ')}.`, 'encourage');
     }
   }
 
@@ -81,7 +87,7 @@ export function TileGame({ kid, onFinish, onQuit, subject, gameId, garden }: Gam
           </button>
         ))}
       </div>
-      <GameBuddy kid={kid} mood={done ? 'cheer' : shake !== null ? 'oops' : 'idle'} combo={done && misses === 0 ? comboOf(round.results) + 1 : 0} />
+      <GameBuddy kid={kid} mood={done ? 'cheer' : shake !== null ? 'oops' : 'idle'} line={said} />
       {garden && (
         <div className="garden-row" aria-hidden="true">
           {Array.from({ length: round.total }, (_, i) => <span key={i} className={i < flowers ? 'grown' : ''}>{i < flowers ? ['🌷', '🌻', '🌼', '🌸', '🌹'][i % 5] : '🌱'}</span>)}

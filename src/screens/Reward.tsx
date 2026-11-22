@@ -48,7 +48,7 @@ export function Reward({ kid, summary, onAgain, onHome, timeUp }: { kid: Kid; su
     if (news.leveled) lines.push(`Level up! You are now level ${news.after.level}!`);
     if (news.evolved) lines.push(`Whoa! Your buddy evolved into ${creatureName(news.evolved.kind!, news.evolved.stage)}!`);
     else if (news.firstToday && progress.streak.current > 1) lines.push(`${progress.streak.current} days in a row!`);
-    speak(lines.join(' '));
+    speak(lines.join(' '), 'celebrate');
     const timers: number[] = [];
     summary.lines.forEach((_, i) => timers.push(window.setTimeout(() => { setShown(i + 1); sfx.coin(); }, 700 + i * 550)));
     if (news.leveled || news.evolved) timers.push(window.setTimeout(() => sfx.levelUp(), 700 + summary.lines.length * 550));
