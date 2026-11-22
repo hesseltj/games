@@ -1,74 +1,11 @@
 import { pick, randInt, shuffle, type Rng } from '../../core/random';
+import { numberChoices, question as q } from '../shared/build';
+import type { ChoiceQuestion, Display, GenContext, OptContent, ShapeName } from '../shared/types';
 
-export type ShapeName = 'circle' | 'square' | 'triangle' | 'rectangle' | 'star' | 'heart' | 'oval' | 'diamond';
-
-export type BubbleContent =
-  | { kind: 'number'; n: number; dots?: boolean }
-  | { kind: 'text'; text: string }
-  | { kind: 'color'; name: string; hex: string }
-  | { kind: 'shape'; shape: ShapeName }
-  | { kind: 'emoji'; emoji: string }
-  | { kind: 'group'; emoji: string; count: number };
-
-export interface BubbleOption {
-  id: string;
-  content: BubbleContent;
-  correct: boolean;
-}
-
-export type Display =
-  | { kind: 'none' }
-  | { kind: 'text'; text: string }
-  | { kind: 'objects'; emoji: string; count: number; faded?: number; frame?: boolean }
-  | { kind: 'sum'; emoji: string; a: number; b: number }
-  | { kind: 'tenFrame'; filled: number };
-
-export interface Question {
-  id: string;
-  skillId: string;
-  step: number;
-  /** Spoken aloud. */
-  say: string;
-  /** Short text instruction shown above the play area (for readers and parents). */
-  prompt: string;
-  display: Display;
-  options: BubbleOption[];
-}
-
-export interface GenContext {
-  rng: Rng;
-  step: number;
-  /** Theme emoji used for counting objects. */
-  objects: string[];
-}
-
-let qCounter = 0;
-function q(skillId: string, step: number, say: string, prompt: string, display: Display, options: Omit<BubbleOption, 'id'>[], rng: Rng): Question {
-  qCounter += 1;
-  return {
-    id: `${skillId}-${qCounter}`,
-    skillId,
-    step,
-    say,
-    prompt,
-    display,
-    options: shuffle(rng, options).map((o, i) => ({ ...o, id: `${qCounter}-${i}` })),
-  };
-}
-
-/** `count` distinct numbers including `answer`, all within [min, max], preferring nearby values. */
-export function numberChoices(rng: Rng, answer: number, count: number, min: number, max: number, spread = 3): number[] {
-  const out = new Set<number>([answer]);
-  let tries = 0;
-  while (out.size < count && tries < 200) {
-    tries += 1;
-    const width = tries > 50 ? max - min : spread;
-    const n = answer + randInt(rng, -width, width);
-    if (n >= min && n <= max) out.add(n);
-  }
-  for (let n = min; out.size < count && n <= max; n++) out.add(n);
-  return [...out];
-}
+export { numberChoices };
+export type { GenContext };
+type Question = ChoiceQuestion;
+type BubbleContent = OptContent;
 
 function numberOptions(rng: Rng, answer: number, count: number, min: number, max: number, dots = false, spread = 3) {
   return numberChoices(rng, answer, count, min, max, spread).map((n) => ({

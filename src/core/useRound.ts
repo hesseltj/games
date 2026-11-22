@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Grade, Kid, Subject } from './types';
 import { newProgress, pickSkill, recordAnswer } from './adaptive';
-import { skillsFor, type Skill } from './skills';
+import { SKILL_BY_ID, skillsFor, type Skill } from './skills';
 import { dayKey, defaultRng, uid, type Rng } from './random';
 import { payoutTotal, roundPayout, type PayoutLine } from './economy';
 import { SUBJECT_BY_ID } from './subjects';
@@ -38,10 +38,14 @@ export function useRound<Q>(opts: {
   gameId: string;
   generate: (skill: Skill, step: number, rng: Rng) => Q;
   onFinish: (s: RoundSummary) => void;
+  /** Override the number of questions (e.g. Memory Flip counts pairs). */
+  total?: number;
+  /** Always use this skill instead of picking one per question. */
+  fixedSkillId?: string;
 }) {
   const { kid, subject, gameId } = opts;
   const grade = kidGrade(kid, subject);
-  const total = questionsPerRound(grade);
+  const total = opts.total ?? questionsPerRound(grade);
   const skills = useRef(skillsFor(subject, gameId)).current;
   const progress = useRef<Record<string, SkillProgress>>({ ...(getState().skills[kid.id] ?? {}) });
   const results = useRef<boolean[]>([]);
@@ -51,7 +55,8 @@ export function useRound<Q>(opts: {
   optsRef.current = opts;
 
   const makeQuestion = useCallback(() => {
-    const skill = pickSkill(skills, grade, progress.current, defaultRng);
+    const fixed = optsRef.current.fixedSkillId;
+    const skill = fixed ? SKILL_BY_ID[fixed] : pickSkill(skills, grade, progress.current, defaultRng);
     const step = progress.current[skill.id]?.step ?? 1;
     usedSkills.current.add(skill.id);
     return { skill, q: optsRef.current.generate(skill, step, defaultRng) };

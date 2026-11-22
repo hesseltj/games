@@ -24,6 +24,14 @@ in a shop to dress up their character and decorate their house.
 - House: bedroom and yard, plus 3 unlockable rooms; drag, flip and put away items; walls and floors
 - Cloud backup with Supabase: one family login, offline-first sync, works across devices
 
+**Phase 3 (all subjects):** done.
+- Reading ⭐: Letter Lagoon, Word Builder, Story Spot
+- Spelling 💎: Picture Words, Spelling Bee Garden
+- Science 🍃: Sort It!, Science Safari
+- Logic 🧩: Pattern Train, Memory Flip, Robot Path
+- Every subject has games at Pre-K, K and 2nd grade. Games meant only for older grades stay
+  hidden until a kid reaches them.
+
 ## Development
 
 ```bash
@@ -42,6 +50,6 @@ Code layout:
 | `src/shop/` | Item catalog, purchase rules and shop actions |
 | `supabase/` | Database schema for cloud backup |
 | `src/audio/` | Text-to-speech and synthesized sound effects |
-| `src/games/` | Mini-games. Each one plugs into `useRound` |
+| `src/games/` | Mini-games. Each one plugs into `useRound`; `registry.tsx` lists them, `content/` holds word lists, stories and science facts |
 | `src/screens/` | Profiles, new player, hub, subject menu, reward |
 | `src/ui/` | Avatar, house, shapes, confetti, wallet |
