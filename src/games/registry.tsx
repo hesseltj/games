@@ -8,6 +8,12 @@ import { TileGame } from './spelling/TileGame';
 import { MemoryGame } from './logic/MemoryGame';
 import { RobotGame } from './logic/RobotGame';
 import { SudokuGame } from './logic/SudokuGame';
+import { SequenceGame } from './more/SequenceGame';
+import { NumberLineGame } from './more/NumberLineGame';
+import { PizzaGame } from './more/PizzaGame';
+import { WordSearchGame } from './more/WordSearchGame';
+import { TicTacToeGame } from './more/TicTacToeGame';
+import { TreasureMapGame } from './more/TreasureMapGame';
 import { pickSkill } from '../core/adaptive';
 import { skillsFor } from '../core/skills';
 import { kidGrade } from '../core/useRound';
@@ -42,4 +48,11 @@ export const GAME_COMPONENTS: Record<string, ComponentType<GameProps>> = {
   memoryFlip: MemoryGame,
   robotPath: RobotGame,
   pictureSudoku: SudokuGame,
+  sentenceScramble: (p) => <SequenceGame {...p} kind="sentence" />,
+  lifeCycle: (p) => <SequenceGame {...p} kind="order" />,
+  numberLine: NumberLineGame,
+  fractionPizza: PizzaGame,
+  wordSearch: WordSearchGame,
+  ticTacToe: TicTacToeGame,
+  treasureMap: TreasureMapGame,
 };

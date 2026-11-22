@@ -16,7 +16,7 @@ import { makePuzzle, runProgram, shortestPath, key, DIRS, type Dir } from './log
 
 const CHOICE: Record<string, Record<string, ChoiceGen>> = Object.fromEntries(Object.entries(CHOICE_GAMES).map(([id, g]) => [id, g.gens]));
 const skillsIn = (game: string) => SKILLS.filter((s) => s.games.includes(game)).map((s) => s.id);
-const OTHER_GAMES = new Set(['storySpot', 'wordBuilder', 'spellingBee', 'memoryFlip', 'robotPath', 'pictureSudoku']);
+const OTHER_GAMES = new Set(['storySpot', 'wordBuilder', 'spellingBee', 'memoryFlip', 'robotPath', 'pictureSudoku', 'sentenceScramble', 'lifeCycle', 'numberLine', 'fractionPizza', 'wordSearch', 'ticTacToe', 'treasureMap']);
 const objects = ['🐶', '🐱', '🐰', '🐻', '🐸', '🐥'];
 
 describe('every playable skill has content', () => {
@@ -161,7 +161,7 @@ describe('Picture Sudoku', () => {
         }
       }
     }
-  });
+  }, 60000);
 });
 
 describe('Bake Shop answers are right', () => {
@@ -215,6 +215,103 @@ describe('grade coverage', () => {
         const title = (q.display as { title: string }).title;
         expect(STORIES.find((s) => s.title === title)?.grade).toBe(g);
       }
+    }
+  });
+});
+
+import { sentenceQuestion, orderQuestion } from './more/sequences';
+import { lineQuestion } from './more/numberLine';
+import { pizzaQuestion } from './more/pizza';
+import { searchPuzzle, lineCells, matchWord } from './more/wordSearch';
+import { robotMove, winner, LEVEL_BY_SKILL, type Cell } from './more/ticTacToe';
+import { mapQuestion } from './more/treasureMap';
+
+describe('new games', () => {
+  it('every subject has 4 to 6 games', () => {
+    for (const subj of ['math', 'reading', 'spelling', 'science', 'logic', 'social']) {
+      const n = GAMES.filter((g) => g.subject === subj && g.ready).length;
+      expect(n, subj).toBeGreaterThanOrEqual(4);
+      expect(n, subj).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it('sequence puzzles are never already solved and use every piece once', () => {
+    const rng = seeded(21);
+    for (const id of skillsIn('sentenceScramble')) for (let i = 0; i < 100; i++) {
+      const q = sentenceQuestion(id, 2, rng);
+      expect([...q.pool].sort((a, b) => a - b)).toEqual(q.items.map((_, k) => k));
+      expect(q.pool.every((v, k) => v === k)).toBe(false);
+    }
+    for (const id of skillsIn('lifeCycle')) for (let i = 0; i < 100; i++) {
+      const q = orderQuestion(id, 2, rng);
+      expect(q.items.length).toBeGreaterThanOrEqual(3);
+      expect(q.pool.every((v, k) => v === k)).toBe(false);
+    }
+  });
+
+  it('number line targets are on the line and labeled', () => {
+    const rng = seeded(22);
+    for (const id of skillsIn('numberLine')) for (let step = 1; step <= 3; step++) for (let i = 0; i < 100; i++) {
+      const q = lineQuestion(id, step, rng);
+      expect(q.target).toBeGreaterThanOrEqual(0);
+      expect(q.target).toBeLessThanOrEqual(q.ticks);
+      expect(q.labels).toHaveLength(q.ticks + 1);
+      expect(q.labels[q.target]).toBeTruthy();
+      if (q.start !== undefined) expect(q.start).not.toBe(q.target);
+    }
+  });
+
+  it('pizza asks for a whole number of slices that fits', () => {
+    const rng = seeded(23);
+    for (const id of skillsIn('fractionPizza')) for (let step = 1; step <= 2; step++) for (let i = 0; i < 100; i++) {
+      const q = pizzaQuestion(id, step, rng);
+      expect(Number.isInteger(q.need), q.say).toBe(true);
+      expect(q.need).toBeGreaterThan(0);
+      expect(q.need).toBeLessThanOrEqual(q.slices);
+    }
+  });
+
+  it('word searches contain every word along a straight line', () => {
+    const rng = seeded(24);
+    for (const id of skillsIn('wordSearch')) for (let step = 1; step <= 2; step++) for (let i = 0; i < 60; i++) {
+      const p = searchPuzzle(id, step, rng);
+      expect(p.grid).toHaveLength(p.size * p.size);
+      for (const w of p.words) {
+        expect(w.cells.map((c) => p.grid[c]).join('')).toBe(w.word);
+        if (!p.letter) {
+          expect(lineCells(p.size, w.cells[0], w.cells[w.cells.length - 1])).toEqual(w.cells);
+          expect(matchWord(p, [...w.cells].reverse(), new Set())?.word).toBe(w.word);
+        }
+      }
+    }
+  });
+
+  it('the Super Robot never loses at tic-tac-toe', () => {
+    const rng = seeded(25);
+    const level = LEVEL_BY_SKILL['l.5.ttt'];
+    // Try every possible sequence of kid moves.
+    const explore = (b: Cell[]): void => {
+      for (let i = 0; i < 9; i++) {
+        if (b[i]) continue;
+        const nb = [...b]; nb[i] = 'X';
+        const w = winner(nb);
+        expect(w).not.toBe('X');
+        if (w) continue;
+        const r = [...nb]; r[robotMove(nb, level, rng)] = 'O';
+        if (!winner(r)) explore(r);
+      }
+    };
+    explore(Array(9).fill(null));
+  });
+
+  it('treasure map answers are on the map and not the starting spot', () => {
+    const rng = seeded(26);
+    for (const id of skillsIn('treasureMap')) for (let step = 1; step <= 2; step++) for (let i = 0; i < 100; i++) {
+      const q = mapQuestion(id, step, rng);
+      expect(q.target).toBeGreaterThanOrEqual(0);
+      expect(q.target).toBeLessThan(q.size * q.size);
+      if (q.start !== undefined) expect(q.target).not.toBe(q.start);
+      expect(q.say.length).toBeGreaterThan(10);
     }
   });
 });

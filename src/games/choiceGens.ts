@@ -13,8 +13,9 @@ import { SCIENCE_SAFARI_MORE, SORT_IT_MORE } from './science/upper';
 import { PATTERN_TRAIN } from './logic/patternTrain';
 import { PATTERN_TRAIN_MORE } from './logic/upper';
 import { HELPERS_GAME, MAP_EXPLORER, TIME_TRAVELERS } from './social/socialGames';
+import { FACT_OR_FIB, MISSING_LETTER } from './more/choiceMore';
 
-export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story' | 'bakery' | 'map' | 'time';
+export type Skin = 'bubbles' | 'fish' | 'cards' | 'bins' | 'train' | 'story' | 'bakery' | 'map' | 'time' | 'racer' | 'monster' | 'lab';
 
 export const CHOICE_GAMES: Record<string, { subject: Subject; skin: Skin; gens: Record<string, ChoiceGen> }> = {
   numberPop: { subject: 'math', skin: 'bubbles', gens: { ...NUMBER_POP, ...NUMBER_POP_MORE } },
@@ -27,4 +28,7 @@ export const CHOICE_GAMES: Record<string, { subject: Subject; skin: Skin; gens: 
   helpersAndMe: { subject: 'social', skin: 'cards', gens: HELPERS_GAME },
   mapExplorer: { subject: 'social', skin: 'map', gens: MAP_EXPLORER },
   timeTravelers: { subject: 'social', skin: 'time', gens: TIME_TRAVELERS },
+  mathRacer: { subject: 'math', skin: 'racer', gens: { ...NUMBER_POP, ...NUMBER_POP_MORE } },
+  missingLetter: { subject: 'spelling', skin: 'monster', gens: MISSING_LETTER },
+  factOrFib: { subject: 'science', skin: 'lab', gens: FACT_OR_FIB },
 };

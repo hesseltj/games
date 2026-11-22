@@ -93,6 +93,7 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
   return (
     <div className={`screen choice-game skin-${skin}`}>
       <GameTopBar total={round.total} index={index} results={round.results} onQuit={onQuit} onSpeak={() => speak(q.repeat ?? q.say)} />
+      {skin === 'racer' && <RaceTrack index={index} total={round.total} results={round.results} />}
       <div className="np-prompt">
         {q.display.kind !== 'story' && <div className="np-text">{q.prompt}</div>}
         <DisplayView d={q.display} />
@@ -119,6 +120,19 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
       </div>
       {picked && <div className="cheer-pop">⭐</div>}
       <GameBuddy kid={kid} mood={picked ? 'cheer' : wobble ? 'oops' : 'idle'} line={said} />
+    </div>
+  );
+}
+
+/** Math Racer: your car moves ahead for each right answer; the robot car keeps a steady pace. */
+function RaceTrack({ index, total, results }: { index: number; total: number; results: boolean[] }) {
+  const mine = results.reduce((s, r) => s + (r ? 1 : 0.6), 0) / total;
+  const robot = Math.min(1, (index * 0.8) / total);
+  return (
+    <div className="race" aria-hidden="true">
+      <div className="lane"><span className="car me" style={{ left: `calc(${mine * 100}% - ${mine * 48}px)` }}>🏎️</span></div>
+      <div className="lane"><span className="car bot" style={{ left: `calc(${robot * 100}% - ${robot * 48}px)` }}>🚙</span></div>
+      <span className="finish">🏁</span>
     </div>
   );
 }
