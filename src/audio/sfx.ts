@@ -44,4 +44,11 @@ export const sfx = {
   shake: () => [0, 0.1, 0.2].forEach((t) => tone(180, t, 0.07, 'square', 0.05)),
   open: () => { tone(300, 0, 0.25, 'sawtooth', 0.05, 900); [784, 988, 1175, 1568].forEach((f, i) => tone(f, 0.2 + i * 0.07, 0.2, 'triangle', 0.12)); },
   combo: () => [880, 1109, 1319].forEach((f, i) => tone(f, i * 0.06, 0.1, 'square', 0.05)),
+  /** A little "yay!": a rising slide-whistle, a chord stab and sparkles. */
+  cheer: () => {
+    tone(500, 0, 0.35, 'sine', 0.12, 1500);
+    [523, 659, 784].forEach((f) => tone(f, 0.3, 0.35, 'sawtooth', 0.04));
+    [1568, 2093, 2637, 3136].forEach((f, i) => tone(f, 0.35 + i * 0.05, 0.1, 'sine', 0.05));
+  },
+  whoosh: () => tone(200, 0, 0.3, 'sawtooth', 0.04, 1200),
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRound } from '../../core/useRound';
-import { speak, stopSpeaking } from '../../audio/speech';
+import { praiseLine, speak, stopSpeaking } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { GameTopBar } from '../shared/GameTopBar';
 import { GameBuddy } from '../shared/GameBuddy';
@@ -38,13 +38,14 @@ export function RobotGame({ kid, onFinish, onQuit }: GameProps) {
     setBump(true);
     setTimeout(() => setBump(false), 400);
     setMisses((m) => m + 1);
-    speak(msg);
+    speak(msg, 'encourage');
   }
 
   function win() {
     setWon(true);
     sfx.correct();
-    speak('Beep boop! Battery found!');
+    sfx.cheer();
+    speak('Beep boop! Battery found! ' + praiseLine(kid.name), 'praise');
     setTimeout(() => round.submit(misses === 0), 1300);
   }
 
@@ -83,7 +84,7 @@ export function RobotGame({ kid, onFinish, onQuit }: GameProps) {
     <div className="screen robot-game">
       <GameTopBar total={round.total} index={round.index} results={round.results} onQuit={onQuit}
         onSpeak={() => speak(p.mode === 'tap' ? 'Tap a square next to the robot to move it to the battery.' : 'Use the arrows to plan the moves, then press Go.')} />
-      <GameBuddy kid={kid} mood={won ? 'cheer' : bump ? 'oops' : 'idle'} combo={0} />
+      <GameBuddy kid={kid} mood={won ? 'cheer' : bump ? 'oops' : 'idle'} line={won ? 'Beep boop! 🔋' : bump ? 'Try again!' : null} />
       <div className="robot-body">
         <div className={`robot-grid ${p.mode === 'program' ? 'prog' : ''}`} style={{ ['--n' as string]: p.size }}>
           {Array.from({ length: p.size * p.size }, (_, i) => {

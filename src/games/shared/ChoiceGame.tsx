@@ -3,7 +3,7 @@ import type { Kid, Subject } from '../../core/types';
 import { useRound, type RoundSummary } from '../../core/useRound';
 import type { Skill } from '../../core/skills';
 import type { Rng } from '../../core/random';
-import { speak, setSpeechRate, stopSpeaking } from '../../audio/speech';
+import { praiseLine, speak, setSpeechRate, stopSpeaking, streakLine, tryAgainLine } from '../../audio/speech';
 import { sfx } from '../../audio/sfx';
 import { Shape } from '../../ui/Shape';
 import { Clock, CoinRow, FractionBar, GridMap, Ruler } from '../../ui/MathArt';
@@ -15,7 +15,6 @@ import type { Skin } from '../choiceGens';
 export type { Skin };
 
 const TINTS = ['#ffd6e7', '#d6ecff', '#e2ffd6', '#fff1c2', '#eadcff', '#ffe0cc'];
-const PRAISE = ['Great job!', 'You got it!', 'Awesome!', 'Yes!', 'Super!', 'Way to go!', 'Nice!'];
 
 export interface GameProps {
   kid: Kid;
@@ -43,6 +42,7 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
   const [faded, setFaded] = useState<Set<string>>(new Set());
   const [wobble, setWobble] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
+  const [said, setSaid] = useState<string | null>(null);
   const locked = useRef(false);
 
   useEffect(() => {
@@ -54,8 +54,9 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
     setMisses(0);
     setFaded(new Set());
     setPicked(null);
+    setSaid(null);
     locked.current = false;
-    const t = setTimeout(() => speak(q.say), 350);
+    const t = setTimeout(() => speak(q.say, 'question'), 350);
     return () => clearTimeout(t);
   }, [q]);
 
@@ -67,8 +68,10 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
       setTimeout(() => sfx.correct(), 120);
       setPicked(o.id);
       const combo = misses === 0 ? comboOf(round.results) + 1 : 0;
-      if (combo >= 3) { setTimeout(() => sfx.combo(), 350); speak(`${combo} in a row!`); }
-      else speak(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
+      const line = combo >= 3 ? streakLine(combo) : praiseLine(kid.name);
+      if (combo >= 3) { setTimeout(() => sfx.cheer(), 300); }
+      setSaid(line);
+      speak(line, 'praise');
       setTimeout(() => round.submit(misses === 0), 1100);
       return;
     }
@@ -79,7 +82,9 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
     setMisses(m);
     setFaded((f) => new Set(f).add(o.id));
     const again = q.repeat ?? q.say;
-    speak(m === 1 ? `Try again! ${again}` : `Here it is! ${again}`);
+    const line = m === 1 ? tryAgainLine() : 'Here’s a hint!';
+    setSaid(line);
+    speak(`${line} ${again}`, 'encourage');
   }
 
   const size = young ? 'lg' : q.options.length >= 4 ? 'sm' : 'md';
@@ -88,6 +93,7 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
   return (
     <div className={`screen choice-game skin-${skin}`}>
       <GameTopBar total={round.total} index={index} results={round.results} onQuit={onQuit} onSpeak={() => speak(q.repeat ?? q.say)} />
+      {skin === 'racer' && <RaceTrack index={index} total={round.total} results={round.results} />}
       <div className="np-prompt">
         {q.display.kind !== 'story' && <div className="np-text">{q.prompt}</div>}
         <DisplayView d={q.display} />
@@ -113,7 +119,20 @@ export function ChoiceGame({ kid, onFinish, onQuit, subject, gameId, skin, gener
         ))}
       </div>
       {picked && <div className="cheer-pop">⭐</div>}
-      <GameBuddy kid={kid} mood={picked ? 'cheer' : wobble ? 'oops' : 'idle'} combo={misses === 0 ? comboOf(round.results) + 1 : 0} />
+      <GameBuddy kid={kid} mood={picked ? 'cheer' : wobble ? 'oops' : 'idle'} line={said} />
+    </div>
+  );
+}
+
+/** Math Racer: your car moves ahead for each right answer; the robot car keeps a steady pace. */
+function RaceTrack({ index, total, results }: { index: number; total: number; results: boolean[] }) {
+  const mine = results.reduce((s, r) => s + (r ? 1 : 0.6), 0) / total;
+  const robot = Math.min(1, (index * 0.8) / total);
+  return (
+    <div className="race" aria-hidden="true">
+      <div className="lane"><span className="car me" style={{ left: `calc(${mine * 100}% - ${mine * 48}px)` }}>🏎️</span></div>
+      <div className="lane"><span className="car bot" style={{ left: `calc(${robot * 100}% - ${robot * 48}px)` }}>🚙</span></div>
+      <span className="finish">🏁</span>
     </div>
   );
 }

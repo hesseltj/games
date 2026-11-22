@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from 'react';
 
 // Per-device sound settings (a quiet tablet at bedtime shouldn't mute the others).
-export type AudioSetting = 'music' | 'sounds';
-const DEFAULTS: Record<AudioSetting, boolean> = { music: true, sounds: true };
+export type AudioSetting = 'music' | 'sounds' | 'gameMusic';
+const DEFAULTS: Record<AudioSetting, boolean> = { music: true, sounds: true, gameMusic: true };
 const listeners = new Set<() => void>();
 
 export function getAudioSetting(k: AudioSetting): boolean {

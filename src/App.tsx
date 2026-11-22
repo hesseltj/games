@@ -14,7 +14,7 @@ import { Wardrobe } from './screens/Wardrobe';
 import { Parents } from './screens/Parents';
 import { Badges } from './screens/Badges';
 import { Creatures } from './screens/Creatures';
-import { setMusicWanted } from './audio/music';
+import { setSong, type SongId } from './audio/music';
 import { BreakTime } from './screens/BreakTime';
 import { minutesLeft } from './core/report';
 
@@ -56,9 +56,12 @@ export function App() {
 
   const kid = kids.find((k) => k.id === kidId) ?? null;
 
-  // Calm music on the home, shop and house screens; quiet during games so prompts are clear.
+  // A song per screen. Game music is quieter and ducks under the voice (see audio/music.ts).
   useEffect(() => {
-    setMusicWanted(!['play', 'reward', 'parents'].includes(screen.name));
+    const songs: Partial<Record<Screen['name'], SongId | null>> = {
+      play: 'game', reward: null, parents: null, house: 'house', shop: 'shop', wardrobe: 'shop', break: 'calm',
+    };
+    setSong(screen.name in songs ? songs[screen.name]! : 'home');
     // Each screen starts at the top (phones keep the old scroll position otherwise).
     window.scrollTo(0, 0);
   }, [screen.name]);
